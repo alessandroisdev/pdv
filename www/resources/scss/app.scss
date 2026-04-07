@@ -1,37 +1,185 @@
-// Variables Map
-$colors: (
-  'primary': #455073,
-  'contrast': #c0904d,
-  'secondary': #6077c0,
-  'background': #eef1f6,
-  'white': #ffffff,
-  'text-dark': #1a1a1a,
-  'text-light': #f8f9fa
-);
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-// Reset
+// Paleta de Cores Premium Elegante
+$color-primary: #455073;    
+$color-contrast: #c0904d;   
+$color-secondary: #6077c0;  
+$color-background: #f8fafc;
+$color-text: #1e293b;
+$color-text-light: #64748b;
+$color-white: #ffffff;
+$color-gray-100: #f1f5f9;
+$color-gray-200: #e2e8f0;
+
+// Tipografia
+$font-family: 'Inter', sans-serif;
+
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: map-get($colors, 'background');
-  color: map-get($colors, 'text-dark');
-  -webkit-font-smoothing: antialiased;
+    font-family: $font-family;
+    background-color: $color-background;
+    color: $color-text;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
 }
 
-// Utility Classes
-@each $name, $val in $colors {
-  .bg-#{$name} { background-color: $val; }
-  .text-#{$name} { color: $val; }
+/* Componente Estrutural: App Layout */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    
+    &__sidebar {
+        width: 250px;
+        background-color: $color-primary;
+        color: $color-white;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+
+    &__content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &__topbar {
+        height: 60px;
+        background-color: $color-white;
+        border-bottom: 1px solid $color-gray-200;
+        display: flex;
+        align-items: center;
+        padding: 0 1.5rem;
+        justify-content: space-between;
+    }
+
+    &__main {
+        padding: 2rem;
+        flex: 1;
+        overflow-y: auto;
+    }
 }
 
-// Layout base
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+/* Componente: Sidebar */
+.sidebar {
+    &-brand {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        padding: 0 1.5rem;
+        border-bottom: 2px solid $color-contrast;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: $color-contrast;
+        letter-spacing: 0.5px;
+    }
+
+    &-nav {
+        flex: 1;
+        padding: 1rem 0;
+        list-style: none;
+    }
+
+    &-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: rgba($color-white, 0.75);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        
+        span { margin-left: 10px; }
+
+        &:hover, &--active {
+            background-color: $color-secondary;
+            color: $color-white;
+            border-right: 4px solid $color-contrast;
+        }
+    }
+}
+
+/* Componente: Card */
+.card {
+    background: $color-white;
+    border-radius: 8px;
+    border: 1px solid $color-gray-200;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    
+    &-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid $color-gray-200;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: rgba($color-gray-100, 0.5);
+
+        h3 {
+            font-size: 1rem;
+            color: $color-primary;
+            font-weight: 600;
+        }
+    }
+    
+    &-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Grids Simples e Utilitários */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-4 { gap: 1rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+
+.text-primary { color: $color-primary; }
+.text-contrast { color: $color-contrast; }
+.text-light { color: $color-text-light; }
+
+.fw-bold { font-weight: 700; }
+.fw-semibold { font-weight: 600; }
+
+/* Botões */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+
+    &-primary {
+        background-color: $color-primary;
+        color: $color-white;
+        &:hover { background-color: $color-secondary; }
+    }
+    
+    &-contrast {
+        background-color: $color-contrast;
+        color: $color-white;
+        &:hover { filter: brightness(1.1); }
+    }
+
+    &-outline {
+        background-color: transparent;
+        border-color: $color-gray-200;
+        color: $color-text;
+        &:hover { background-color: $color-gray-100; }
+    }
 }

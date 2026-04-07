@@ -1,29 +1,72 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDV & ERP System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/scss/app.scss', 'resources/ts/app.ts'])
-</head>
-<body class="bg-background">
-    <div class="container">
-        <header style="padding: 2rem 0; border-bottom: 2px solid #c0904d;">
-            <h1 class="text-primary" style="font-weight: 700;">Gestão Operacional | PDV</h1>
-            <p class="text-secondary">O sistema está ativo e configurado com Laravel e TypeScript.</p>
-        </header>
+<x-layouts.app>
+    <x-slot:title>Visão Geral</x-slot:title>
 
-        <main style="margin-top: 3rem;">
-            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <h2 class="text-primary">Módulos Carregados</h2>
-                <ul style="margin-top: 1rem; list-style-position: inside;">
-                    <li>Core</li>
-                    <li>Access Control</li>
-                    <li style="color: #ccc;">(Módulos dinâmicos serão listados aqui)</li>
-                </ul>
-            </div>
-        </main>
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h1 class="text-primary fw-bold" style="font-size: 1.75rem;">Dashboard</h1>
+            <p class="text-light" style="margin-top: 0.25rem;">Resumo gerencial e saúde do seu negócio.</p>
+        </div>
+        <button class="btn btn-primary">
+            + Nova Venda (PDV)
+        </button>
     </div>
-</body>
-</html>
+
+    <!-- Cards de Resumo -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <x-ui.card>
+            <x-slot:header>Vendas Hoje (Bruto)</x-slot:header>
+            <h2 class="text-contrast fw-bold" style="font-size: 2.25rem;">R$ 0,00</h2>
+            <p class="text-light mt-4" style="font-size: 0.85rem;">Caixa principal fechado</p>
+        </x-ui.card>
+
+        <x-ui.card>
+            <x-slot:header>Itens Únicos em Estoque</x-slot:header>
+            <h2 class="text-primary fw-bold" style="font-size: 2.25rem;">0</h2>
+            <p class="text-light mt-4" style="font-size: 0.85rem;">Nenhum produto cadastrado</p>
+        </x-ui.card>
+
+        <x-ui.card>
+            <x-slot:header>Alerta de Ruptura (Estoque Baixo)</x-slot:header>
+            <h2 class="text-secondary fw-bold" style="font-size: 2.25rem;">0 Itens</h2>
+            <p class="text-light mt-4" style="font-size: 0.85rem;">Tudo regular ou vazio</p>
+        </x-ui.card>
+    </div>
+
+    <!-- Seção de Ações e Histórico -->
+    <x-ui.card>
+        <x-slot:header>Status dos Módulos</x-slot:header>
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e2e8f0; color: #455073;">
+                    <th style="padding: 1rem 0;">Módulo ERP</th>
+                    <th style="padding: 1rem 0;">Integração DB</th>
+                    <th style="padding: 1rem 0;">Status Operacional</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 1rem 0; font-weight: 500;">📦 Estoque (Inventory)</td>
+                    <td style="padding: 1rem 0; color: #16a34a;">Ativo (Kardex)</td>
+                    <td style="padding: 1rem 0;">
+                        <span style="background: rgba(22, 163, 74, 0.1); color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">Online</span>
+                    </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 1rem 0; font-weight: 500;">🛒 Compras (Purchasing)</td>
+                    <td style="padding: 1rem 0; color: #16a34a;">Ativo</td>
+                    <td style="padding: 1rem 0;">
+                        <span style="background: rgba(22, 163, 74, 0.1); color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">Online</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 1rem 0; font-weight: 500;">💳 PDV & Financeiro</td>
+                    <td style="padding: 1rem 0; color: #16a34a;">Ativo</td>
+                    <td style="padding: 1rem 0;">
+                        <span style="background: rgba(22, 163, 74, 0.1); color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">Online</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </x-ui.card>
+
+</x-layouts.app>

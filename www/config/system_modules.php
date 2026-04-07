@@ -12,11 +12,10 @@ return [
     */
     'modules' => [
         'Core',
-        // 'AccessControl',
-        // 'Inventory',
-        // 'Purchasing',
-        // 'Sales',
-        // 'POS',
-        // 'Finance',
+        'AccessControl',
+        'Inventory',
+        'Purchasing',
+        'Sales',
+        'Finance',
     ],
 ];
