@@ -22,19 +22,44 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'pin' => 'required|string|min:4|unique:employees,pin',
+            'pin' => 'nullable|string|min:4|unique:employees,pin',
             'level' => 'required|in:OPERATOR,SUPERVISOR'
         ]);
 
+        $pin = $request->input('pin');
+        
+        if (empty($pin)) {
+            $pin = $this->generateUniqueNumericPin($request->input('name'));
+        }
+
         Employee::create([
             'name' => $request->input('name'),
-            'pin' => $request->input('pin'),
+            'pin' => $pin,
             'level' => $request->input('level'),
             'user_id' => $request->input('user_id'),
             'status' => true
         ]);
 
-        return redirect()->back()->with('success', 'Colaborador registrado com sucesso!');
+        return redirect()->back()->with('success', 'Colaborador registrado com sucesso! Seu PIN é: ' . $pin);
+    }
+
+    private function generateUniqueNumericPin($name)
+    {
+        $attempt = 0;
+
+        do {
+            $hashContext = $name . ($attempt > 0 ? $attempt : '');
+            $md5 = md5($hashContext);
+            $pin = '';
+            for ($i = 0; $i < 6; $i++) {
+                $hexVal = hexdec(substr($md5, $i * 2, 2));
+                $pin .= ($hexVal % 10);
+            }
+            $exists = Employee::where('pin', $pin)->exists();
+            $attempt++;
+        } while ($exists);
+
+        return $pin;
     }
 
     public function update(Request $request, Employee $employee)

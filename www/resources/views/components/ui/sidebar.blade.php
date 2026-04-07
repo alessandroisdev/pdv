@@ -17,9 +17,9 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('purchasing.suppliers.index') }}" class="sidebar-link {{ request()->routeIs('purchasing.suppliers.*') ? 'sidebar-link--active' : '' }}">
+            <a href="{{ route('purchasing.orders.index') }}" class="sidebar-link {{ request()->routeIs('purchasing.*') ? 'sidebar-link--active' : '' }}">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                <span>Compras & Fornecedores</span>
+                <span>Compras / Notas (NF-e)</span>
             </a>
         </li>
         <li>

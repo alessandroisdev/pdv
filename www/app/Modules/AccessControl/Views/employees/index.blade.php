@@ -61,6 +61,11 @@
                                 </button>
                             </form>
 
+                            <!-- Edit Button -->
+                            <button type="button" class="btn btn-outline p-2 text-blue-600 border-blue-200 hover:bg-blue-50" title="Editar" onclick="openEditModal({{ $employee->id }}, '{{ addslashes($employee->name) }}', '{{ $employee->pin }}', '{{ $employee->level }}', '{{ $employee->user_id }}')">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </button>
+
                             <!-- Delete Form -->
                             <form action="{{ route('employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir permanentemente o operador do sistema?');" style="display:inline-block;">
                                 @csrf
@@ -87,9 +92,9 @@
             </div>
             
             <div class="form-group mb-4">
-                <label>PIN Numérico (Ex: 1234)</label>
-                <input type="password" name="pin" class="form-control w-full" maxlength="8" inputmode="numeric" required>
-                <small class="text-slate-500">Usado para abrir a gaveta do PDV e logar na máquina local.</small>
+                <label>PIN de Acesso Pessoal (Ex: 1234)</label>
+                <input type="text" name="pin" class="form-control w-full" maxlength="8">
+                <small class="text-slate-500">Deixe em branco para o sistema gerar automaticamente um PIN numérico aleatório de 6 dígitos.</small>
             </div>
 
             <div class="form-group mb-4">
@@ -116,4 +121,54 @@
             </div>
         </form>
     </dialog>
+    <dialog id="modal-edit-employee" class="modal rounded-lg shadow-xl" style="width: 500px; padding: 2rem; border: none; outline: none;">
+        <h3 class="text-xl fw-bold text-primary mb-4">Editar Colaborador</h3>
+        <form id="form-edit-employee" action="" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="form-group mb-4">
+                <label>Nome Completo</label>
+                <input type="text" id="edit-name" name="name" class="form-control w-full" required>
+            </div>
+            
+            <div class="form-group mb-4">
+                <label>PIN de Acesso Pessoal</label>
+                <input type="text" id="edit-pin" name="pin" class="form-control w-full" maxlength="8">
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Papel</label>
+                <select id="edit-level" name="level" class="form-control w-full">
+                    <option value="OPERATOR">Caixa Operador (Nível Base)</option>
+                    <option value="SUPERVISOR">Supervisor / Gerente</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-6">
+                <label>Vínculo com Módulo Administrativo Web (Opcional)</label>
+                <select id="edit-user_id" name="user_id" class="form-control w-full">
+                    <option value="">-- Apenas Acesso ao Frente de Caixa --</option>
+                    @foreach($webUsers as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-edit-employee').close()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Atualizar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        function openEditModal(id, name, pin, level, userId) {
+            document.getElementById('form-edit-employee').action = '/colaboradores/' + id;
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-pin').value = pin;
+            document.getElementById('edit-level').value = level;
+            document.getElementById('edit-user_id').value = userId || '';
+            document.getElementById('modal-edit-employee').showModal();
+        }
+    </script>
 </x-layouts.app>

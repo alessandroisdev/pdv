@@ -13,7 +13,7 @@
     <div class="card bg-transparent border-0 shadow-none">
         <div class="grid gap-4" id="faq-container">
             @foreach($faqs as $index => $faq)
-            <div class="faq-item card border shadow-sm rounded-lg overflow-hidden transition-all duration-200" data-content="{{ strtolower($faq['title'] . ' ' . $faq['content'] . ' ' . implode(' ', $faq['tags'])) }}">
+            <div class="faq-item card border shadow-sm rounded-lg overflow-hidden transition-all duration-200" data-content="{{ e(strtolower($faq['title'] . ' ' . $faq['content'] . ' ' . implode(' ', $faq['tags']))) }}">
                 <button class="w-full text-left p-5 flex justify-between items-center bg-white hover:bg-slate-50 focus:outline-none" onclick="toggleAcc({{ $index }})">
                     <span class="fw-bold text-lg text-slate-800">{{ $faq['title'] }}</span>
                     <svg id="icon-{{ $index }}" class="text-slate-400 transform transition-transform duration-200" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>

@@ -6,7 +6,7 @@
     <title>{{ $title ?? 'Gestão PDV' }} | ERP Modular</title>
     
     <!-- Vite Directives -->
-    @vite(['resources/scss/app.scss', 'resources/ts/app.ts'])
+    @vite(['resources/css/app.css', 'resources/scss/app.scss', 'resources/ts/app.ts'])
 </head>
 <body>
     <div class="app-layout">

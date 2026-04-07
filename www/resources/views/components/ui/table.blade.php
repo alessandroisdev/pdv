@@ -6,7 +6,7 @@
             </tr>
         </thead>
         <tbody>
-            {{ $slot }}
+            {{ $body ?? $slot }}
         </tbody>
     </table>
 </div>
