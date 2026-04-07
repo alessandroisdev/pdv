@@ -1,0 +1,37 @@
+// Variables Map
+$colors: (
+  'primary': #455073,
+  'contrast': #c0904d,
+  'secondary': #6077c0,
+  'background': #eef1f6,
+  'white': #ffffff,
+  'text-dark': #1a1a1a,
+  'text-light': #f8f9fa
+);
+
+// Reset
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: map-get($colors, 'background');
+  color: map-get($colors, 'text-dark');
+  -webkit-font-smoothing: antialiased;
+}
+
+// Utility Classes
+@each $name, $val in $colors {
+  .bg-#{$name} { background-color: $val; }
+  .text-#{$name} { color: $val; }
+}
+
+// Layout base
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
