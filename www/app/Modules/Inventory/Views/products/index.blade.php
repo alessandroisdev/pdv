@@ -42,8 +42,8 @@
                     <td><span style="font-family: monospace; background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 4px;">{{ $product->sku ?? '---' }}</span></td>
                     <td class="fw-semibold">{{ $product->name }}</td>
                     <td>{{ $product->category->name ?? 'Sem Categoria' }}</td>
-                    <td>R$ {{ number_format($product->cost_price->getCents() / 100, 2, ',', '.') }}</td>
-                    <td class="text-contrast fw-bold">R$ {{ number_format($product->sale_price->getCents() / 100, 2, ',', '.') }}</td>
+                    <td>{{ clone $product->cost_price }}</td>
+                    <td class="text-contrast fw-bold">{{ clone $product->sale_price }}</td>
                     <td>
                         <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; background: {{ $product->current_stock > 10 ? '#dcfce7; color: #166534;' : '#fee2e2; color: #991b1b;' }}">
                             {{ $product->current_stock }} Und

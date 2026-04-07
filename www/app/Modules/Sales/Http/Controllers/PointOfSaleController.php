@@ -23,7 +23,7 @@ class PointOfSaleController extends Controller
         }
 
         // Apenas produtos com estoque aparecerão nos quadrados rápidos do PDV!
-        $products = Product::where('stock', '>', 0)->get();
+        $products = Product::all()->filter(fn($p) => $p->current_stock > 0);
         return view('sales::pos.index', compact('products', 'activeRegister'));
     }
 
@@ -78,23 +78,29 @@ class PointOfSaleController extends Controller
                     throw new \Exception("Produto ID {$item['id']} adulterado ou removido pelo Administrador enquanto o carrinho estava aberto.");
                 }
 
-                if ($product->stock < $item['quantity']) {
-                    throw new \Exception("Alerta de Quebra de Estoque: '{$product->name}'. Restam apenas {$product->stock} pçs disponíveis!");
+                if ($product->current_stock < $item['quantity']) {
+                    throw new \Exception("Alerta de Quebra de Estoque: '{$product->name}'. Restam apenas {$product->current_stock} pçs disponíveis!");
                 }
 
-                // Decrementar do Módulo Inventário
-                $product->stock -= $item['quantity'];
-                $product->save();
+                // Registrar diminuição no Módulo de Inventário (Em vez de mexer flat amount)
+                \App\Modules\Inventory\Models\StockMovement::create([
+                    'product_id' => $product->id,
+                    'actor_id' => $user->id,
+                    'actor_type' => get_class($user),
+                    'type' => 'OUT',
+                    'quantity' => $item['quantity'],
+                    'transaction_motive' => 'FRENTE DE CAIXA PDV / VENDA #' . $sale->id
+                ]);
 
                 // Gerar Item Impresso (Cupom associado) no Módulo Sales
                 $saleItem = new SaleItem();
                 $saleItem->sale_id = $sale->id;
                 $saleItem->product_id = $product->id;
                 $saleItem->quantity = $item['quantity'];
-                $saleItem->unit_price_cents = $product->price->getCents();
+                $saleItem->unit_price_cents = $product->sale_price->getCents();
                 $saleItem->save();
 
-                $calculatedTotal += ($item['quantity'] * $product->price->getCents());
+                $calculatedTotal += ($item['quantity'] * $product->sale_price->getCents());
             }
 
             // Trust the calculated total to circumvent DOM injection hacks
@@ -119,7 +125,7 @@ class PointOfSaleController extends Controller
 
             return redirect()->route('sales.pos.board')
                    ->with('sale_id', $sale->id)
-                   ->with('success', "Baixa de Estoque Realizada. R\$ " . number_format($calculatedTotal/100, 2, ',', '.') . " injetados com sucesso no Caixa!");
+                   ->with('success', "Baixa de Estoque Realizada. " . format_money($calculatedTotal) . " injetados com sucesso no Caixa!");
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -185,7 +191,7 @@ class PointOfSaleController extends Controller
             'authorized_by_pin' => $supervisor->name
         ]);
 
-        return redirect()->route('sales.pos.board')->with('success', "$type de R$ " . number_format($amount/100,2,',','.') . " autorizada!");
+        return redirect()->route('sales.pos.board')->with('success', "$type de " . format_money($amount) . " autorizada!");
     }
 
     public function closeShiftScreen()

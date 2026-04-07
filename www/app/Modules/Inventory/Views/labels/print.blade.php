@@ -66,7 +66,7 @@
                 ['{{name}}', '{{price}}', '{{barcode}}'], 
                 [   
                     \Illuminate\Support\Str::limit($product->name, 25), 
-                    number_format($product->price->getCents() / 100, 2, ',', '.'), 
+                    str_replace('R$ ', '', (string) $product->sale_price), 
                     $product->barcode ?? str_pad($product->id, 8, '0', STR_PAD_LEFT)
                 ], 
                 $template->layout_html) 

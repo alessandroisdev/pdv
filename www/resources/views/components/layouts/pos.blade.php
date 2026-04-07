@@ -49,10 +49,12 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             @if(session('success'))
-                window.toast?.fire({ icon: 'success', title: '{{ session('success') }}' });
+                if(window.toast) { window.toast.fire({ icon: 'success', title: '{{ session('success') }}' }); } 
+                else { alert("✅ SUCESSO:\n{{ session('success') }}"); }
             @endif
             @if(session('error'))
-                window.toast?.fire({ icon: 'error', title: '{{ session('error') }}' });
+                if(window.toast) { window.toast.fire({ icon: 'error', title: '{{ session('error') }}' }); }
+                else { alert("❌ ERRO:\n{{ session('error') }}"); }
             @endif
         });
     </script>

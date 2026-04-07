@@ -111,8 +111,8 @@
             <div style="margin-bottom: 0.5rem;">
                 <div class="font-bold">{{ str_pad($item->product->id, 4, '0', STR_PAD_LEFT) }} - {{ \Illuminate\Support\Str::limit($item->product->name, 20) }}</div>
                 <div class="flex-between">
-                    <span>{{ $item->quantity }} x R$ {{ number_format($item->unit_price_cents / 100, 2, ',', '.') }}</span>
-                    <span>R$ {{ number_format(($item->quantity * $item->unit_price_cents) / 100, 2, ',', '.') }}</span>
+                    <span>{{ $item->quantity }} x {{ format_money($item->unit_price_cents) }}</span>
+                    <span>{{ format_money($item->quantity * $item->unit_price_cents) }}</span>
                 </div>
             </div>
             @endforeach
@@ -123,7 +123,7 @@
         <!-- TOTAL -->
         <div class="flex-between font-bold" style="font-size: 1.15rem;">
             <span>TOTAL R$</span>
-            <span>{{ number_format($sale->total_cents / 100, 2, ',', '.') }}</span>
+            <span>{{ format_money($sale->total_cents) }}</span>
         </div>
 
         <div class="divider"></div>

@@ -15,18 +15,18 @@
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
         <x-ui.card>
             <x-slot:header>Total de Entradas (Ativos)</x-slot:header>
-            <h2 style="font-size: 2rem; color: var(--success); font-weight: 800;">+ R$ {{ number_format($income / 100, 2, ',', '.') }}</h2>
+            <h2 style="font-size: 2rem; color: var(--success); font-weight: 800;">+ {{ format_money($income) }}</h2>
         </x-ui.card>
         
         <x-ui.card>
             <x-slot:header>Total de Saídas (Passivos)</x-slot:header>
-            <h2 style="font-size: 2rem; color: var(--danger); font-weight: 800;">- R$ {{ number_format($expense / 100, 2, ',', '.') }}</h2>
+            <h2 style="font-size: 2rem; color: var(--danger); font-weight: 800;">- {{ format_money($expense) }}</h2>
         </x-ui.card>
 
         <x-ui.card>
             <x-slot:header>Saldo Operacional Líquido</x-slot:header>
             <h2 style="font-size: 2rem; color: {{ $balanceCents >= 0 ? 'var(--primary)' : 'var(--danger)' }}; font-weight: 800;">
-                R$ {{ number_format($balanceCents / 100, 2, ',', '.') }}
+                {{ format_money($balanceCents) }}
             </h2>
         </x-ui.card>
     </div>
@@ -77,7 +77,7 @@
                     </td>
                     
                     <td style="padding: 1rem; text-align: right; font-size: 1.15rem; font-weight: 700; color: {{ $tx->type == 'INCOME' ? 'var(--success)' : 'var(--danger)' }};" class="font-variant-numeric">
-                        {{ $tx->type == 'INCOME' ? '+' : '-' }} R$ {{ number_format($tx->amount_cents / 100, 2, ',', '.') }}
+                        {{ $tx->type == 'INCOME' ? '+' : '-' }} {{ clone $tx->amount }}
                     </td>
                 </tr>
             @empty

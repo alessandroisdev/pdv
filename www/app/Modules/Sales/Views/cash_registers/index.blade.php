@@ -50,7 +50,7 @@
                         </span>
                     </td>
                     <td>{{ $register->opened_at->format('d/m/Y H:i') }}</td>
-                    <td>R$ {{ number_format($register->opening_balance->getCents() / 100, 2, ',', '.') }}</td>
+                    <td>{{ clone $register->opening_balance }}</td>
                     <td class="text-light">{{ $register->closed_at ? $register->closed_at->format('d/m/Y H:i') : '---' }}</td>
                     <td style="text-align: right;">
                         <button class="btn" style="padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; color: #455073; font-size: 0.75rem;">Auditar</button>
