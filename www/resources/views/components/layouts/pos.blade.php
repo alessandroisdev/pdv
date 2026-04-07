@@ -6,6 +6,8 @@
     <title>Terminal PDV | Caixa Livre</title>
     <!-- Entrada Modular Exclusiva do POS (Sem estilos do painel Admin) -->
     @vite(['resources/scss/pos.scss', 'resources/ts/pos.ts'])
+    <!-- Robust fallback / Universal Setup for SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body style="background-color: #0f172a; color: white;">
     <div class="pos-layout" style="background-color: #0f172a; min-height: 100vh;">
@@ -31,8 +33,25 @@
         </main>
     </div>
 
-    <!-- Feedback Listener Nativo (Toast e Confirms configurados no pos.ts) -->
+    <!-- Feedback Listener Nativo (Toast e Confirms configurados) -->
     <script>
+        // Setup Global Toast
+        if (typeof window.toast === 'undefined') {
+            window.toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: '#1e293b',
+                color: '#f8fafc',
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
+
         setInterval(() => {
             const clock = document.getElementById('pos-clock');
             if(clock) {
@@ -43,12 +62,10 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             @if(session('success'))
-                if(window.toast) { window.toast.fire({ icon: 'success', title: '{{ session('success') }}' }); } 
-                else { alert("✅ SUCESSO:\n{{ session('success') }}"); }
+                window.toast.fire({ icon: 'success', title: '{!! session('success') !!}' });
             @endif
             @if(session('error'))
-                if(window.toast) { window.toast.fire({ icon: 'error', title: '{{ session('error') }}' }); }
-                else { alert("❌ ERRO:\n{{ session('error') }}"); }
+                window.toast.fire({ icon: 'error', title: '{!! session('error') !!}' });
             @endif
         });
     </script>
