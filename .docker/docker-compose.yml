@@ -1,0 +1,57 @@
+name: pdv
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: pdv_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ../www:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - pdv_network
+
+  php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: pdv_php
+    volumes:
+      - ../www:/var/www/html
+    expose:
+      - "9000"
+    networks:
+      - pdv_network
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: pdv_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pdv
+      MYSQL_USER: pdv_user
+      MYSQL_PASSWORD: pdv_password
+    ports:
+      - "3388:3306" # Mapeando para 3388 localmente para evitar conflito
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - pdv_network
+
+  redis:
+    image: redis:alpine
+    container_name: pdv_redis
+    ports:
+      - "6388:6379" # Mapeando para 6388 localmente
+    networks:
+      - pdv_network
+
+volumes:
+  db_data:
+
+networks:
+  pdv_network:
+    driver: bridge
