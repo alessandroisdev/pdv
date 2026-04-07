@@ -7,6 +7,13 @@ use App\Modules\AccessControl\Models\Permission;
 
 trait HasAccessControl
 {
+    public function hasRole($roleName)
+    {
+        // 1. Opcional: Super Admin sempre retorna true se quisermos. 
+        // Mas para verificação exata de papel, testamos estrito:
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'user_has_roles');

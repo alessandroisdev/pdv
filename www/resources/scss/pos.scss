@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+// Design Tokens (Compartilhados conceitualmente, mas estruturados para o painel Touch Exclusivo)
+:root {
+    --primary: #455073;
+    --primary-light: #6077c0;
+    --accent: #c0904d;
+    --accent-hover: #d1a364;
+    --surface: #ffffff;
+    --bg-light: #f8fafc;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border: #e2e8f0;
+    
+    // Cores de Sistema
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-light);
+    height: 100vh;
+    overflow: hidden; // Prevenir scroll bar global
+}
+
+// Layout Base (Split View 70% / 30%)
+.pos-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.pos-header {
+    background: var(--primary);
+    color: white;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    z-index: 10;
+    
+    .pos-brand {
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: -0.025em;
+        span { color: var(--accent); }
+    }
+}
+
+.pos-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+// Coluna Esquerda: Tela Touch Grids & Input Leitor
+.pos-terminal {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+}
+
+.pos-search-area {
+    margin-bottom: 1rem;
+    input {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        border: 2px solid var(--border);
+        font-size: 1.25rem;
+        font-family: monospace;
+        font-weight: 500;
+        outline: none;
+        transition: border-color 0.2s;
+        
+        &:focus {
+            border-color: var(--primary-light);
+        }
+    }
+}
+
+.pos-product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    
+    .pos-product-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 140px;
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        user-select: none;
+        
+        &:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
+        
+        h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+        
+        .price {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+    }
+}
+
+// Coluna Direita: O Cupom Fiscal / Carrinho
+.pos-cart {
+    width: 380px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+}
+
+.pos-cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed var(--border);
+        
+        .item-info {
+            flex: 1;
+            padding-right: 1rem;
+            h4 {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 0.25rem;
+            }
+            .item-meta {
+                font-size: 0.8rem;
+                color: var(--text-secondary);
+                span { font-weight: 700; color: var(--primary); }
+            }
+        }
+        
+        .item-total {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+    }
+}
+
+.pos-cart-summary {
+    padding: 1.5rem;
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        
+        span {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        strong {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+    }
+}
+
+.pos-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    
+    .btn-pos {
+        border: none;
+        padding: 1rem;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        color: white;
+        transition: opacity 0.2s;
+        
+        &:hover { opacity: 0.9; }
+        
+        &.btn-cash { background-color: var(--success); }
+        &.btn-card { background-color: var(--primary-light); }
+        &.btn-pix { background-color: var(--warning); grid-column: span 2; }
+    }
+}

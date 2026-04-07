@@ -30,5 +30,23 @@ class AclDatabaseSeeder extends Seeder
         if (!$user->roles()->where('roles.id', $adminRole->id)->exists()) {
             $user->roles()->attach($adminRole->id);
         }
+
+        // 4. Create the Pos/Cashier Role and User
+        $caixaRole = Role::updateOrCreate(
+            ['name' => 'Caixa Operacional'],
+            ['description' => 'Acesso apenas a Frente de Loja (PDV)']
+        );
+
+        $caixaUser = User::updateOrCreate(
+            ['email' => 'caixa@norte.dev.br'],
+            [
+                'name' => 'Paulo (Caixa)',
+                'password' => Hash::make('skyorhell')
+            ]
+        );
+
+        if (!$caixaUser->roles()->where('roles.id', $caixaRole->id)->exists()) {
+            $caixaUser->roles()->attach($caixaRole->id);
+        }
     }
 }

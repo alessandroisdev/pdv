@@ -22,6 +22,15 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            
+            // ACL Routing (Redirecionamento Inteligente de Telas)
+            if ($user->hasRole('Caixa Operacional') && !$user->hasRole('Super Admin')) {
+                return redirect()->intended('/vendas/pdv');
+            }
+            
             return redirect()->intended('/');
         }
 

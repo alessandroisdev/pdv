@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login Seguro | Gestão PDV</title>
-    @vite(['resources/scss/app.scss'])
+    @vite(['resources/scss/app.scss', 'resources/ts/app.ts'])
     <style>
         .login-wrapper {
             display: flex;

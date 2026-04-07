@@ -1,72 +1,112 @@
 <x-layouts.app>
-    <x-slot:title>Visão Geral</x-slot:title>
+    <x-slot:title>Painel Gerencial</x-slot:title>
 
-    <div class="flex justify-between items-center mb-4">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <div>
-            <h1 class="text-primary fw-bold" style="font-size: 1.75rem;">Dashboard</h1>
-            <p class="text-light" style="margin-top: 0.25rem;">Resumo gerencial e saúde do seu negócio.</p>
+            <h1 style="font-size: 1.75rem; color: var(--primary); font-weight: 800; letter-spacing: -0.025em;">Visão Estratégica</h1>
+            <p style="color: var(--text-secondary); margin-top: 0.25rem;">Monitoramento D-0 do Ecossistema ERP.</p>
         </div>
-        <button class="btn btn-primary">
-            + Nova Venda (PDV)
-        </button>
+        <a href="{{ route('sales.pos.board') }}" style="background: var(--accent); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            Acessar PDV (Caixa)
+        </a>
     </div>
 
-    <!-- Cards de Resumo -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Cards de Métricas Principais -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <x-ui.card>
-            <x-slot:header>Vendas Hoje (Bruto)</x-slot:header>
-            <h2 class="text-contrast fw-bold" style="font-size: 2.25rem;">R$ 0,00</h2>
-            <p class="text-light mt-4" style="font-size: 0.85rem;">Caixa principal fechado</p>
+            <x-slot:header>Faturamento (Hoje)</x-slot:header>
+            <h2 style="font-size: 2.25rem; color: var(--success); font-weight: 800;">R$ {{ number_format($faturamentoHojeCents / 100, 2, ',', '.') }}</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.85rem;">Volume diário apurado</p>
         </x-ui.card>
 
         <x-ui.card>
-            <x-slot:header>Itens Únicos em Estoque</x-slot:header>
-            <h2 class="text-primary fw-bold" style="font-size: 2.25rem;">0</h2>
-            <p class="text-light mt-4" style="font-size: 0.85rem;">Nenhum produto cadastrado</p>
+            <x-slot:header>Qtd. Vendas (Hoje)</x-slot:header>
+            <h2 style="font-size: 2.25rem; color: var(--primary); font-weight: 800;">{{ $totalVendasHoje }}</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.85rem;">Cupons emitidos no PDV</p>
         </x-ui.card>
 
         <x-ui.card>
-            <x-slot:header>Alerta de Ruptura (Estoque Baixo)</x-slot:header>
-            <h2 class="text-secondary fw-bold" style="font-size: 2.25rem;">0 Itens</h2>
-            <p class="text-light mt-4" style="font-size: 0.85rem;">Tudo regular ou vazio</p>
+            <x-slot:header>Ticket Médio D-0</x-slot:header>
+            <h2 style="font-size: 2.25rem; color: var(--primary-light); font-weight: 800;">R$ {{ number_format($ticketMedioCents / 100, 2, ',', '.') }}</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.85rem;">Média gasta por cupom</p>
+        </x-ui.card>
+
+        <x-ui.card>
+            <x-slot:header>Acumulado Histórico</x-slot:header>
+            <h2 style="font-size: 2.25rem; color: var(--text-primary); font-weight: 800;">R$ {{ number_format($faturamentoTotalAcumuladoCents / 100, 2, ',', '.') }}</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.85rem;">Ativo Realizado Integral</p>
         </x-ui.card>
     </div>
 
-    <!-- Seção de Ações e Histórico -->
-    <x-ui.card>
-        <x-slot:header>Status dos Módulos</x-slot:header>
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="border-bottom: 2px solid #e2e8f0; color: #455073;">
-                    <th style="padding: 1rem 0;">Módulo ERP</th>
-                    <th style="padding: 1rem 0;">Integração DB</th>
-                    <th style="padding: 1rem 0;">Status Operacional</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 1rem 0; font-weight: 500;">📦 Estoque (Inventory)</td>
-                    <td style="padding: 1rem 0; color: #16a34a;">Ativo (Kardex)</td>
-                    <td style="padding: 1rem 0;">
-                        <span style="background: rgba(22, 163, 74, 0.1); color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">Online</span>
-                    </td>
-                </tr>
-                <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 1rem 0; font-weight: 500;">🛒 Compras (Purchasing)</td>
-                    <td style="padding: 1rem 0; color: #16a34a;">Ativo</td>
-                    <td style="padding: 1rem 0;">
-                        <span style="background: rgba(22, 163, 74, 0.1); color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">Online</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding: 1rem 0; font-weight: 500;">💳 PDV & Financeiro</td>
-                    <td style="padding: 1rem 0; color: #16a34a;">Ativo</td>
-                    <td style="padding: 1rem 0;">
-                        <span style="background: rgba(22, 163, 74, 0.1); color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">Online</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </x-ui.card>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <!-- Livro Razão Recente -->
+        <x-ui.card>
+            <x-slot:header>Pulsos Financeiros</x-slot:header>
+            <x-ui.table>
+                <x-slot:header>
+                    <tr>
+                        <th style="padding: 1rem; text-align: left;">Fluxo</th>
+                        <th style="padding: 1rem; text-align: left;">Origem</th>
+                        <th style="padding: 1rem; text-align: right;">Montante</th>
+                    </tr>
+                </x-slot:header>
+                
+                @forelse($recentTransactions as $trans)
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 1rem;">
+                            @if($trans->type == 'INCOME')
+                                <span style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">ENTRADA</span>
+                            @else
+                                <span style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">SAÍDA</span>
+                            @endif
+                        </td>
+                        <td style="padding: 1rem;">
+                            {{ $trans->payment_method ?? 'MISTO' }}<br>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Recibo: #{{ $trans->source_id }}</span>
+                        </td>
+                        <td style="padding: 1rem; text-align: right; font-weight: 600; color: {{ $trans->type == 'INCOME' ? 'var(--success)' : 'var(--danger)' }};">
+                            R$ {{ number_format($trans->amount_cents / 100, 2, ',', '.') }}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="3" style="padding: 2rem; text-align: center; color: var(--text-secondary);">Nenhum pulso financeiro registrado.</td>
+                    </tr>
+                @endforelse
+            </x-ui.table>
+        </x-ui.card>
 
+        <!-- Cupons Recentes -->
+        <x-ui.card>
+            <x-slot:header>Saídas Recentes no PDV</x-slot:header>
+            <x-ui.table>
+                <x-slot:header>
+                    <tr>
+                        <th style="padding: 1rem; text-align: left;">Cupom ID</th>
+                        <th style="padding: 1rem; text-align: center;">Itens (Mix)</th>
+                        <th style="padding: 1rem; text-align: right;">Total Faturado</th>
+                    </tr>
+                </x-slot:header>
+                
+                @forelse($recentSales as $sale)
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 1rem; font-weight: 500;">
+                            # {{ str_pad($sale->id, 5, '0', STR_PAD_LEFT) }}<br>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">{{ $sale->created_at->format('H:i') }}</span>
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            {{ $sale->items->sum('quantity') }} pçs
+                        </td>
+                        <td style="padding: 1rem; text-align: right; font-weight: 600; color: var(--text-primary);">
+                            R$ {{ number_format($sale->total_cents / 100, 2, ',', '.') }}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="3" style="padding: 2rem; text-align: center; color: var(--text-secondary);">Os caixas estão vazios neste momento.</td>
+                    </tr>
+                @endforelse
+            </x-ui.table>
+        </x-ui.card>
+    </div>
 </x-layouts.app>

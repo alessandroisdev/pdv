@@ -23,6 +23,21 @@
                 {{ $slot }}
             </main>
         </div>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            @if(session('success'))
+                window.toast.fire({ icon: 'success', title: '{{ session('success') }}' });
+            @endif
+            @if(session('error'))
+                window.toast.fire({ icon: 'error', title: '{{ session('error') }}' });
+            @endif
+            @if(session('warning'))
+                window.toast.fire({ icon: 'warning', title: '{{ session('warning') }}' });
+            @endif
+            @if($errors->any())
+                window.toast.fire({ icon: 'error', title: 'Falha de validação. Reveja o formulário.' });
+            @endif
+        });
+    </script>
 </body>
 </html>
