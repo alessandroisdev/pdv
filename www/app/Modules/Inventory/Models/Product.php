@@ -12,7 +12,7 @@ class Product extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     protected $fillable = [
         'name', 'sku', 'barcode', 'description', 'category_id',
-        'price_cents_cost', 'price_cents_sale', 'status'
+        'price_cents_cost', 'price_cents_sale', 'price_cents_club', 'status'
     ];
 
     public function category()
@@ -47,7 +47,13 @@ class Product extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function getSalePriceAttribute(): Money
     {
-        return new Money((int) $this->price_cents_sale);
+        return new Money($this->price_cents_sale);
+    }
+
+    public function getClubPriceAttribute(): ?Money
+    {
+        if (is_null($this->price_cents_club)) return null;
+        return new Money($this->price_cents_club);
     }
 
     public function setSalePriceAttribute(Money $money): void

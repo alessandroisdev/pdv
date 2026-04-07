@@ -15,3 +15,23 @@ if (!function_exists('format_money')) {
         return new Money((int) $cents);
     }
 }
+
+if (!function_exists('current_pos_actor')) {
+    /**
+     * Resolves the current actor of the POS Terminal (User vs Physical Employee)
+     */
+    function current_pos_actor()
+    {
+        if (request()->is('terminal*')) {
+            $employeeId = session('pos_employee_id');
+            if (!$employeeId) return null;
+            return \App\Modules\AccessControl\Models\Employee::find($employeeId);
+        }
+
+        if (auth()->check()) {
+            return auth()->user();
+        }
+
+        return null; // Force exceptions on checkout
+    }
+}

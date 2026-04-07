@@ -14,17 +14,73 @@ use Illuminate\Support\Facades\Auth;
 
 class PointOfSaleController extends Controller
 {
+    private function getBoardRoute($request = null)
+    {
+        $req = $request ?? request();
+        return $req->is('terminal*') ? 'terminal.pos.board' : 'sales.pos.board';
+    }
     public function index()
     {
         $activeRegister = CashRegister::where('status', 'OPEN')->first();
-        
         if (!$activeRegister) {
             return view('sales::pos.open');
         }
+        
+        $products = Product::where('status', true)->whereHas('stockMovements')->get();
+        // Decorate club price if requested on front
+        
+        return view('sales::pos.index', compact('activeRegister', 'products'));
+    }
 
-        // Apenas produtos com estoque aparecerão nos quadrados rápidos do PDV!
-        $products = Product::all()->filter(fn($p) => $p->current_stock > 0);
-        return view('sales::pos.index', compact('products', 'activeRegister'));
+    public function checkCustomer(Request $request)
+    {
+        $doc = preg_replace('/[^0-9]/', '', $request->document);
+        $customer = \App\Modules\CRM\Models\Customer::where('document', $doc)->first();
+        
+        if (!$customer) {
+            return response()->json(['found' => false]);
+        }
+        
+        return response()->json([
+            'found' => true,
+            'name' => $customer->name,
+            'is_club' => (bool)$customer->is_club_member
+        ]);
+    }
+
+    public function registerCustomer(Request $request)
+    {
+        $val = $request->validate([
+            'name' => 'required|string',
+            'document' => 'required|string',
+            'phone' => 'nullable|string',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string',
+            'lgpd' => 'required|boolean'
+        ]);
+        
+        $doc = preg_replace('/[^0-9]/', '', $val['document']);
+        if (\App\Modules\CRM\Models\Customer::where('document', $doc)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Documento já cadastrado.'], 400);
+        }
+
+        $customer = \App\Modules\CRM\Models\Customer::create([
+            'name' => $val['name'],
+            'document' => $doc,
+            'phone' => $val['phone'],
+            'email' => $val['email'],
+            'address' => $val['address'],
+            'is_club_member' => true, // Auto enters club via POS
+            'lgpd_consent' => $val['lgpd']
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'customer' => [
+                'name' => $customer->name,
+                'is_club' => true
+            ]
+        ]);
     }
 
     public function checkout(Request $request)
@@ -48,8 +104,8 @@ class PointOfSaleController extends Controller
             // == BLOQUEIO MONOLÍTICO DE TRANSAÇÕES ==
             DB::beginTransaction();
 
-            $user = Auth::user();
-            
+            $actor = current_pos_actor();
+            if (!$actor) throw new \Exception("Autenticação requerida (Sessão ADM ou PIN Terminal) para autorizar vendas!");
             // 1. Recuperar o Turno Ativo
             $register = CashRegister::where('status', 'OPEN')->first();
             
@@ -57,11 +113,29 @@ class PointOfSaleController extends Controller
                 throw new \Exception("Nenhum Caixa/Turno aberto. Venda bloqueada.");
             }
 
+            // Setup Customer if provided
+            $payloadObj = json_decode($payloadRaw, true);
+            $customerDocument = null;
+            $customerId = null;
+            $isClubMember = false;
+
+            if (!empty($payloadObj['customer_document'])) {
+                $docClean = preg_replace('/[^0-9]/', '', $payloadObj['customer_document']);
+                $customerDocument = $docClean;
+                $crmCustomer = \App\Modules\CRM\Models\Customer::where('document', $docClean)->first();
+                if ($crmCustomer) {
+                    $customerId = $crmCustomer->id;
+                    $isClubMember = $crmCustomer->is_club_member;
+                }
+            }
+
             // 2. Fundar a Venda Mestra no Módulo Sales
             $sale = new Sale();
             $sale->cash_register_id = $register->id;
-            $sale->seller_id = $user->id; // Aqui seria ideal amarrar o id do Employee do Session, mas usaremos id logado como owner maquina
-            $sale->seller_type = get_class($user);
+            $sale->seller_id = $actor->id;
+            $sale->seller_type = get_class($actor);
+            $sale->customer_id = $customerId;
+            $sale->customer_document = $customerDocument;
             $sale->total_cents = 0; // Calcularemos sob segurança no backend
             $sale->save();
 
@@ -79,14 +153,22 @@ class PointOfSaleController extends Controller
                 }
 
                 if ($product->current_stock < $item['quantity']) {
-                    throw new \Exception("Alerta de Quebra de Estoque: '{$product->name}'. Restam apenas {$product->current_stock} pçs disponíveis!");
+                    throw new \Exception("Estoque Insuficiente do produto {$product->name}");
                 }
+
+                $appliedPriceCents = $product->price_cents_sale;
+                if ($isClubMember && !is_null($product->price_cents_club)) {
+                    $appliedPriceCents = $product->price_cents_club;
+                }
+
+                $lineTotal = $appliedPriceCents * $item['quantity'];
+                $calculatedTotal += $lineTotal;
 
                 // Registrar diminuição no Módulo de Inventário (Em vez de mexer flat amount)
                 \App\Modules\Inventory\Models\StockMovement::create([
                     'product_id' => $product->id,
-                    'actor_id' => $user->id,
-                    'actor_type' => get_class($user),
+                    'actor_id' => $actor->id,
+                    'actor_type' => get_class($actor),
                     'type' => 'OUT',
                     'quantity' => $item['quantity'],
                     'transaction_motive' => 'FRENTE DE CAIXA PDV / VENDA #' . $sale->id
@@ -97,10 +179,11 @@ class PointOfSaleController extends Controller
                 $saleItem->sale_id = $sale->id;
                 $saleItem->product_id = $product->id;
                 $saleItem->quantity = $item['quantity'];
-                $saleItem->unit_price_cents = $product->sale_price->getCents();
+                $saleItem->unit_price_cents = $appliedPriceCents;
                 $saleItem->save();
 
-                $calculatedTotal += ($item['quantity'] * $product->sale_price->getCents());
+                $calculatedTotal += $lineTotal;
+
             }
 
             // Trust the calculated total to circumvent DOM injection hacks
@@ -109,8 +192,8 @@ class PointOfSaleController extends Controller
 
             // 4. Injetar o Polimorfismo Financeiro no Livro Razão (Módulo Financeiro)
             $transaction = new Transaction();
-            $transaction->actor_type = get_class($user);
-            $transaction->actor_id = $user->id;
+            $transaction->actor_type = get_class($actor);
+            $transaction->actor_id = $actor->id;
             $transaction->type = 'INCOME'; // Dinheiro que Entra
             $transaction->amount_cents = $calculatedTotal;
             $transaction->payment_method = strtoupper($paymentMethod);
@@ -123,7 +206,7 @@ class PointOfSaleController extends Controller
             // Salvar e Confirmar DB
             DB::commit();
 
-            return redirect()->route('sales.pos.board')
+            return redirect()->route($this->getBoardRoute($request))
                    ->with('sale_id', $sale->id)
                    ->with('success', "Baixa de Estoque Realizada. " . format_money($calculatedTotal) . " injetados com sucesso no Caixa!");
 
@@ -168,8 +251,8 @@ class PointOfSaleController extends Controller
            'opened_at' => now()
         ]);
         
-        session(['pos_employee_name' => $employee->name]);
-        return redirect()->route('sales.pos.board')->with('success', 'Turno Aberto com Fundo Original!');
+        session(['pos_employee_name' => $employee->name, 'pos_employee_id' => $employee->id]);
+        return redirect()->route($this->getBoardRoute($request))->with('success', 'Turno Aberto com Fundo Original!');
     }
 
     public function cashMovement(Request $request)
@@ -191,7 +274,7 @@ class PointOfSaleController extends Controller
             'authorized_by_pin' => $supervisor->name
         ]);
 
-        return redirect()->route('sales.pos.board')->with('success', "$type de " . format_money($amount) . " autorizada!");
+        return redirect()->route($this->getBoardRoute($request))->with('success', "$type de " . format_money($amount) . " autorizada!");
     }
 
     public function closeShiftScreen()
@@ -203,34 +286,37 @@ class PointOfSaleController extends Controller
 
     public function closeShift(Request $request)
     {
-        /** @var \App\Modules\Sales\Models\CashRegister $register */
-        $register = CashRegister::where('status', 'OPEN')->firstOrFail();
+        $registers = CashRegister::where('status', 'OPEN')->get();
+        if ($registers->isEmpty()) abort(404);
 
+        $primaryRegister = $registers->first();
         
         $reportedCents = floatval(str_replace(',', '.', $request->input('reported_amount_cash', 0))) * 100;
         
         // Calcular quanto do sistema de fato era DINHEIRO nas transações. (No MVP, simplificaremos assumindo todas as vendas atreladas ao PDV)
         $systemCashSales = \App\Modules\Finance\Models\Transaction::where('source_type', Sale::class)
-            ->whereIn('source_id', $register->sales()->pluck('id'))
+            ->whereIn('source_id', $primaryRegister->sales()->pluck('id'))
             ->where('payment_method', 'DINHEIRO')
             ->sum('amount_cents');
 
-        $sangrias = \App\Modules\Sales\Models\CashRegisterMovement::where('cash_register_id', $register->id)->where('type', 'SANGRIA')->sum('amount_cents');
-        $reforcos = \App\Modules\Sales\Models\CashRegisterMovement::where('cash_register_id', $register->id)->where('type', 'REFORCO')->sum('amount_cents');
+        $sangrias = \App\Modules\Sales\Models\CashRegisterMovement::where('cash_register_id', $primaryRegister->id)->where('type', 'SANGRIA')->sum('amount_cents');
+        $reforcos = \App\Modules\Sales\Models\CashRegisterMovement::where('cash_register_id', $primaryRegister->id)->where('type', 'REFORCO')->sum('amount_cents');
 
-        $expectedCash = $register->initial_cents + $systemCashSales + $reforcos - $sangrias;
+        $expectedCash = $primaryRegister->initial_cents + $systemCashSales + $reforcos - $sangrias;
 
         $difference = $reportedCents - $expectedCash;
 
-        $register->update([
-            'status' => 'CLOSED',
-            'closed_at' => now(),
-            'reported_cents' => $reportedCents,
-            'difference_cents' => $difference
-        ]);
+        foreach ($registers as $reg) {
+            $reg->update([
+                'status' => 'CLOSED',
+                'closed_at' => now(),
+                'reported_cents' => ($reg->id === $primaryRegister->id) ? $reportedCents : 0,
+                'difference_cents' => ($reg->id === $primaryRegister->id) ? $difference : 0
+            ]);
+        }
 
-        session()->forget('pos_employee_name');
+        session()->forget(['pos_employee_name', 'pos_employee_id']);
 
-        return redirect()->route('sales.pos.board')->with('success', 'Turno Encerrado. Cofre cego protocolado.');
+        return redirect()->route($this->getBoardRoute($request))->with('success', 'Turno Encerrado. Cofre cego protocolado.');
     }
 }

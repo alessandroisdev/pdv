@@ -7,9 +7,9 @@
     <!-- Entrada Modular Exclusiva do POS (Sem estilos do painel Admin) -->
     @vite(['resources/scss/pos.scss', 'resources/ts/pos.ts'])
 </head>
-<body>
-    <div class="pos-layout">
-        <header class="pos-header">
+<body style="background-color: #0f172a; color: white;">
+    <div class="pos-layout" style="background-color: #0f172a; min-height: 100vh;">
+        <header class="pos-header" style="background-color: #1e293b; border-bottom: 1px solid rgba(255,255,255,0.1);">
             <div class="pos-brand">
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 0.5rem;"><path d="M4 7v10l8 4 8-4V7M4 7l8-4 8 4M4 7l8 4 8-4"></path></svg>
                 <span>Gestão</span>PDV
@@ -23,12 +23,6 @@
                         <strong style="display:block; font-size: 0.95rem;">{{ Auth::user()->name ?? 'Operador' }}</strong>
                         <span style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Caixa ABERTO</span>
                     </div>
-                    
-                    <form method="POST" action="/logout" style="margin:0;">
-                        @csrf
-                        <button type="button" data-confirm="Tem certeza que deseja sair do sistema? Isso não fechará o Turno contabilmente se houver dinheiro na gaveta." class="btn-pos" style="background: transparent; border: 1px solid rgba(255,255,255,0.3); padding: 0.5rem 1rem;">SAIR</button>
-                    </form>
-                </div>
             </div>
         </header>
 
