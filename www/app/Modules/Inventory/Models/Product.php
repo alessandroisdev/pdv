@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Modules\Core\ValueObjects\Money;
 
-class Product extends Model
+class Product extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use SoftDeletes;
+    use SoftDeletes, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'name', 'sku', 'barcode', 'description', 'category_id',

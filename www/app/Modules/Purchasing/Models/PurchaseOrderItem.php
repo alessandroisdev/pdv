@@ -8,7 +8,13 @@ use App\Modules\Core\ValueObjects\Money;
 
 class PurchaseOrderItem extends Model
 {
-    protected $fillable = ['purchase_order_id', 'product_id', 'quantity', 'unit_cost_cents'];
+    protected $fillable = [
+        'purchase_order_id',
+        'product_id',
+        'quantity',
+        'unit_price_cents',
+        'total_cents'
+    ];
 
     public function purchaseOrder()
     {
@@ -19,9 +25,14 @@ class PurchaseOrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
-    
-    public function getUnitCostAttribute(): Money
+
+    public function getUnitPriceAttribute(): Money
     {
-        return new Money((int) $this->unit_cost_cents);
+        return new Money((int) $this->unit_price_cents);
+    }
+
+    public function getTotalAttribute(): Money
+    {
+        return new Money((int) $this->total_cents);
     }
 }

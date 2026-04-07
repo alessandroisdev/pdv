@@ -48,5 +48,33 @@ class AclDatabaseSeeder extends Seeder
         if (!$caixaUser->roles()->where('roles.id', $caixaRole->id)->exists()) {
             $caixaUser->roles()->attach($caixaRole->id);
         }
+
+        // 5. Create Physical Terminal Employees
+        \App\Modules\AccessControl\Models\Employee::updateOrCreate(
+            ['pin' => '1111'],
+            [
+                'name' => 'Carlos (Caixa Puro Sem Login Web)',
+                'level' => 'OPERATOR',
+                'user_id' => null
+            ]
+        );
+
+        \App\Modules\AccessControl\Models\Employee::updateOrCreate(
+            ['pin' => '2222'],
+            [
+                'name' => 'João (Caixa c/ Login)',
+                'level' => 'OPERATOR',
+                'user_id' => $caixaUser->id 
+            ]
+        );
+
+        \App\Modules\AccessControl\Models\Employee::updateOrCreate(
+            ['pin' => '9999'],
+            [
+                'name' => 'Maria (Gerente / Supervisor)',
+                'level' => 'SUPERVISOR',
+                'user_id' => $user->id 
+            ]
+        );
     }
 }

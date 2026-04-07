@@ -6,8 +6,23 @@
         </div>
 
         <div style="margin-bottom: 1rem;">
-            <h2 style="font-size: 1.1rem; color: var(--primary); font-weight: 700;">Atalhos de Balcão (Favoritos)</h2>
+        <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-size: 1.1rem; color: var(--primary); font-weight: 700;">Atalhos de Balcão</h2>
+            
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-outline" style="font-size:0.8rem; border-color: #ef4444; color: #ef4444;" onclick="window.PosApp.cashMovement('SANGRIA')">🩸 SANGRIA</button>
+                <button type="button" class="btn btn-outline" style="font-size:0.8rem; border-color: #10b981; color: #10b981;" onclick="window.PosApp.cashMovement('REFORCO')">🏦 REFORÇO</button>
+                <a href="{{ route('sales.pos.close_screen') }}" class="btn btn-primary" style="font-size:0.8rem; background: #0f172a;">FECHAR CAIXA</a>
+            </div>
         </div>
+
+        <form id="cash-movement-form" method="POST" action="{{ route('sales.pos.movement') }}" style="display:none;">
+            @csrf
+            <input type="hidden" name="type" id="movement-type">
+            <input type="hidden" name="amount" id="movement-amount">
+            <input type="hidden" name="reason" id="movement-reason">
+            <input type="hidden" name="supervisor_pin" id="movement-pin">
+        </form>
 
         <div class="pos-product-grid">
             <!-- Mock visual que injetará direto no Carrinho Javascript via Dataset ID -->

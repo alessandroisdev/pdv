@@ -13,10 +13,10 @@ use App\Modules\AccessControl\Traits\HasAccessControl;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasAccessControl;
+    use HasFactory, Notifiable, HasAccessControl, \OwenIt\Auditing\Auditable;
 
     /**
      * Get the attributes that should be cast.

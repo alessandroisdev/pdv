@@ -24,6 +24,33 @@ class PosManager {
     constructor() {
         this.initListeners();
         this.renderCart();
+        
+        // Atachar global functions pro Blade
+        (window as any).PosApp = this;
+    }
+
+    public cashMovement(type: 'SANGRIA' | 'REFORCO') {
+        Swal.fire({
+            title: type === 'SANGRIA' ? '🩸 Realizar Sangria' : '🏦 Adicionar Reforço',
+            html: `
+                <input id="swal-amount" class="swal2-input" placeholder="Valor (Ex: 150,00)" inputmode="decimal">
+                <input id="swal-reason" class="swal2-input" placeholder="Motivo (Ex: Retirada de Caixa)">
+                <input id="swal-pin" type="password" class="swal2-input" placeholder="PIN do Supervisor" inputmode="numeric">
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Registrar Movimento',
+            preConfirm: () => {
+                const formId = document.getElementById('cash-movement-form') as HTMLFormElement;
+                if(formId) {
+                    (document.getElementById('movement-amount') as HTMLInputElement).value = (document.getElementById('swal-amount') as HTMLInputElement).value;
+                    (document.getElementById('movement-reason') as HTMLInputElement).value = (document.getElementById('swal-reason') as HTMLInputElement).value;
+                    (document.getElementById('movement-pin') as HTMLInputElement).value = (document.getElementById('swal-pin') as HTMLInputElement).value;
+                    (document.getElementById('movement-type') as HTMLInputElement).value = type;
+                    formId.submit();
+                }
+            }
+        });
     }
 
     public addToCart(id: number, name: string, priceCents: number, qty: number = 1) {
@@ -40,6 +67,52 @@ class PosManager {
     public clearCart() {
         this.cart = [];
         this.renderCart();
+    }
+
+    public async removeWithSupervisor(id: number) {
+        const { value: pin } = await Swal.fire({
+            title: 'Exclusão Restrita',
+            text: 'Informe o PIN Numérico do Supervisor:',
+            input: 'password',
+            inputAttributes: {
+                autocapitalize: 'off',
+                pattern: '[0-9]*',
+                inputmode: 'numeric'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Autorizar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#ef4444'
+        });
+
+        if (pin) {
+            Swal.showLoading();
+            const token = (document.querySelector('form#checkout-form input[name="_token"]') as HTMLInputElement)?.value;
+            
+            try {
+                const response = await fetch('/vendas/pdv/supervisor-override', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    },
+                    body: JSON.stringify({ pin })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    this.cart = this.cart.filter(i => i.id !== id);
+                    this.playSound('beep');
+                    this.renderCart();
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Item Removido.', text: 'Auorizado por: ' + data.supervisor_name, showConfirmButton: false, timer: 3000 });
+                } else {
+                    Swal.fire('Não Autorizado', data.message || 'Senha incorreta', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Erro', 'Falha na comunicação base', 'error');
+            }
+        }
     }
 
     public getSubtotalCents(): number {
@@ -107,14 +180,17 @@ class PosManager {
                 
                 const div = document.createElement('div');
                 div.className = 'cart-item';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
                 div.innerHTML = `
-                    <div class="item-info">
+                    <div class="item-info" style="flex: 1;">
                         <h4>${item.name}</h4>
                         <div class="item-meta"><span>${item.quantity}x</span> R$ ${(item.priceCents/100).toFixed(2).replace('.', ',')}</div>
                     </div>
-                    <div class="item-total">
+                    <div class="item-total" style="font-weight: 700; margin-right: 1rem;">
                         R$ ${itemTotal.toFixed(2).replace('.', ',')}
                     </div>
+                    <button class="btn btn-outline" style="border: 1px solid #ef4444; color: #ef4444; padding: 0.25rem 0.6rem; font-weight: bold; cursor: pointer;" onclick="window.PosApp.removeWithSupervisor(${item.id})">X</button>
                 `;
                 container.appendChild(div);
             });

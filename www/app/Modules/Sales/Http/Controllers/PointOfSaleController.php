@@ -16,9 +16,15 @@ class PointOfSaleController extends Controller
 {
     public function index()
     {
+        $activeRegister = CashRegister::where('status', 'OPEN')->first();
+        
+        if (!$activeRegister) {
+            return view('sales::pos.open');
+        }
+
         // Apenas produtos com estoque aparecerão nos quadrados rápidos do PDV!
         $products = Product::where('stock', '>', 0)->get();
-        return view('sales::pos.index', compact('products'));
+        return view('sales::pos.index', compact('products', 'activeRegister'));
     }
 
     public function checkout(Request $request)
@@ -43,24 +49,18 @@ class PointOfSaleController extends Controller
             DB::beginTransaction();
 
             $user = Auth::user();
-
-            // 1. Obter ou Criar um Caixa/Turno aberto para a sessão atual
-            $register = CashRegister::firstOrCreate(
-                [
-                    'status' => 'OPEN', 
-                    'opened_by_id' => $user->id, 
-                    'opened_by_type' => get_class($user)
-                ],
-                [
-                    'initial_cents' => 0,
-                    'opened_at' => now()
-                ]
-            );
+            
+            // 1. Recuperar o Turno Ativo
+            $register = CashRegister::where('status', 'OPEN')->first();
+            
+            if (!$register) {
+                throw new \Exception("Nenhum Caixa/Turno aberto. Venda bloqueada.");
+            }
 
             // 2. Fundar a Venda Mestra no Módulo Sales
             $sale = new Sale();
             $sale->cash_register_id = $register->id;
-            $sale->seller_id = $user->id;
+            $sale->seller_id = $user->id; // Aqui seria ideal amarrar o id do Employee do Session, mas usaremos id logado como owner maquina
             $sale->seller_type = get_class($user);
             $sale->total_cents = 0; // Calcularemos sob segurança no backend
             $sale->save();
@@ -131,5 +131,100 @@ class PointOfSaleController extends Controller
     {
         $sale->load(['items.product', 'seller']);
         return view('sales::pos.receipt', compact('sale'));
+    }
+
+    public function supervisorOverride(Request $request)
+    {
+        $pin = $request->input('pin');
+        $employee = \App\Modules\AccessControl\Models\Employee::where('pin', $pin)
+                                ->where('level', 'SUPERVISOR')
+                                ->where('status', true)
+                                ->first();
+        if ($employee) {
+            return response()->json(['success' => true, 'supervisor_name' => $employee->name]);
+        }
+        return response()->json(['success' => false, 'message' => 'PIN Inválido ou Sem Nível de Supervisor'], 403);
+    }
+
+    public function openShift(Request $request) 
+    {
+        $pin = $request->input('pin');
+        $initial = floatval(str_replace(',', '.', $request->input('initial_cash', 0))) * 100;
+        
+        $employee = \App\Modules\AccessControl\Models\Employee::where('pin', $pin)->first();
+        if (!$employee) return redirect()->back()->with('error', 'PIN Numérico Inválido.');
+
+        $register = CashRegister::create([
+           'status' => 'OPEN',
+           'opened_by_type' => get_class($employee),
+           'opened_by_id' => $employee->id,
+           'initial_cents' => $initial,
+           'opened_at' => now()
+        ]);
+        
+        session(['pos_employee_name' => $employee->name]);
+        return redirect()->route('sales.pos.board')->with('success', 'Turno Aberto com Fundo Original!');
+    }
+
+    public function cashMovement(Request $request)
+    {
+        $register = CashRegister::where('status', 'OPEN')->firstOrFail();
+        $pin = $request->input('supervisor_pin');
+        $amount = floatval(str_replace(',', '.', $request->input('amount'))) * 100;
+        $type = $request->input('type'); // SANGRIA ou REFORCO
+        $reason = $request->input('reason');
+
+        $supervisor = \App\Modules\AccessControl\Models\Employee::where('pin', $pin)->where('level', 'SUPERVISOR')->first();
+        if (!$supervisor) return redirect()->back()->with('error', 'Sangria negada: Falha na identificação do Supervisor.');
+
+        \App\Modules\Sales\Models\CashRegisterMovement::create([
+            'cash_register_id' => $register->id,
+            'type' => $type,
+            'amount_cents' => $amount,
+            'reason' => $reason,
+            'authorized_by_pin' => $supervisor->name
+        ]);
+
+        return redirect()->route('sales.pos.board')->with('success', "$type de R$ " . number_format($amount/100,2,',','.') . " autorizada!");
+    }
+
+    public function closeShiftScreen()
+    {
+        $register = CashRegister::where('status', 'OPEN')->firstOrFail();
+        // Não carregamos as vendas para garantir que a tela é "Cega" (Blind)
+        return view('sales::pos.close', compact('register'));
+    }
+
+    public function closeShift(Request $request)
+    {
+        /** @var \App\Modules\Sales\Models\CashRegister $register */
+        $register = CashRegister::where('status', 'OPEN')->firstOrFail();
+
+        
+        $reportedCents = floatval(str_replace(',', '.', $request->input('reported_amount_cash', 0))) * 100;
+        
+        // Calcular quanto do sistema de fato era DINHEIRO nas transações. (No MVP, simplificaremos assumindo todas as vendas atreladas ao PDV)
+        $systemCashSales = \App\Modules\Finance\Models\Transaction::where('source_type', Sale::class)
+            ->whereIn('source_id', $register->sales()->pluck('id'))
+            ->where('payment_method', 'DINHEIRO')
+            ->sum('amount_cents');
+
+        $sangrias = \App\Modules\Sales\Models\CashRegisterMovement::where('cash_register_id', $register->id)->where('type', 'SANGRIA')->sum('amount_cents');
+        $reforcos = \App\Modules\Sales\Models\CashRegisterMovement::where('cash_register_id', $register->id)->where('type', 'REFORCO')->sum('amount_cents');
+
+        $expectedCash = $register->initial_cents + $systemCashSales + $reforcos - $sangrias;
+
+        $difference = $reportedCents - $expectedCash;
+
+        $register->update([
+            'status' => 'CLOSED',
+            'closed_at' => now(),
+            'reported_cents' => $reportedCents,
+            'difference_cents' => $difference
+        ]);
+
+        session()->forget('pos_employee_name');
+
+        return redirect()->route('sales.pos.board')->with('success', 'Turno Encerrado. Cofre cego protocolado.');
     }
 }
