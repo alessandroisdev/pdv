@@ -55,10 +55,25 @@
             </div>
             
             <!-- Hidden Form to BackEnd PointOfSaleController -->
-            <form id="checkout-form" method="POST" action="{{ route('pos.checkout') }}" style="display:none;">
+            <form id="checkout-form" method="POST" action="{{ route('sales.pos.checkout') }}" style="display:none;">
                 @csrf
                 <input type="hidden" name="payload_json" id="checkout-payload" value="">
             </form>
         </div>
     </aside>
+
+    @if(session('sale_id'))
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const url = "{{ route('sales.pos.receipt', session('sale_id')) }}";
+                // Abre o cupom num popup focado no centro pra impressão térmica
+                const popup = window.open(url, 'ImpressaoCupom', 'width=380,height=600,scrollbars=yes,resizable=no');
+                if(popup) {
+                    popup.focus();
+                } else {
+                    console.log('Popup bloqueado pelo navegador. Cupom id: {{ session("sale_id") }}');
+                }
+            });
+        </script>
+    @endif
 </x-layouts.pos>

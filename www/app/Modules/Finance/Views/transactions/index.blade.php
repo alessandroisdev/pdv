@@ -34,15 +34,13 @@
     <!-- Tabela Geral de Transações -->
     <x-ui.card>
         <x-ui.table>
-            <x-slot:header>
-                <tr>
-                    <th style="padding: 1rem; width: 10%;">ID / Data</th>
-                    <th style="padding: 1rem; width: 15%;">Tipo / Meio</th>
-                    <th style="padding: 1rem; width: 40%;">Origem Polimórfica (Recibo)</th>
-                    <th style="padding: 1rem; width: 20%;">Autoridade</th>
-                    <th style="padding: 1rem; width: 15%; text-align: right;">Montante</th>
-                </tr>
-            </x-slot:header>
+            <x-slot:head>
+                <th style="padding: 1rem; width: 10%;">ID / Data</th>
+                <th style="padding: 1rem; width: 15%;">Tipo / Meio</th>
+                <th style="padding: 1rem; width: 40%;">Origem Polimórfica (Recibo)</th>
+                <th style="padding: 1rem; width: 20%;">Autoridade</th>
+                <th style="padding: 1rem; width: 15%; text-align: right;">Montante</th>
+            </x-slot:head>
             
             @forelse($transactions as $tx)
                 <tr style="border-bottom: 1px solid var(--border);">

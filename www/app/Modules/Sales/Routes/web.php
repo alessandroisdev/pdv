@@ -11,4 +11,5 @@ Route::middleware(['web', 'auth'])->prefix('vendas')->name('sales.')->group(func
     // Frente de Caixa
     Route::get('/pdv', [PointOfSaleController::class, 'index'])->name('pos.board');
     Route::post('/pdv/checkout', [PointOfSaleController::class, 'checkout'])->name('pos.checkout');
+    Route::get('/pdv/cupom/{sale}', [PointOfSaleController::class, 'receipt'])->name('pos.receipt');
 });

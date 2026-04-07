@@ -3,11 +3,11 @@
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <div>
-            <h1 style="font-size: 1.75rem; color: var(--primary); font-weight: 800; letter-spacing: -0.025em;">Visão Estratégica</h1>
-            <p style="color: var(--text-secondary); margin-top: 0.25rem;">Monitoramento D-0 do Ecossistema ERP.</p>
+            <h1 class="fw-bold" style="font-size: 1.75rem; color: #455073; letter-spacing: -0.025em;">Visão Estratégica</h1>
+            <p class="text-light" style="margin-top: 0.25rem;">Monitoramento D-0 do Ecossistema ERP.</p>
         </div>
-        <a href="{{ route('sales.pos.board') }}" style="background: var(--accent); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
-            Acessar PDV (Caixa)
+        <a href="{{ route('sales.pos.board') }}" class="btn btn-contrast" style="padding: 0.75rem 1.5rem; font-size: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            Acessar PDV (Caixa Livre)
         </a>
     </div>
 
@@ -43,13 +43,11 @@
         <x-ui.card>
             <x-slot:header>Pulsos Financeiros</x-slot:header>
             <x-ui.table>
-                <x-slot:header>
-                    <tr>
-                        <th style="padding: 1rem; text-align: left;">Fluxo</th>
-                        <th style="padding: 1rem; text-align: left;">Origem</th>
-                        <th style="padding: 1rem; text-align: right;">Montante</th>
-                    </tr>
-                </x-slot:header>
+                <x-slot:head>
+                    <th style="padding: 1rem; text-align: left;">Fluxo</th>
+                    <th style="padding: 1rem; text-align: left;">Origem</th>
+                    <th style="padding: 1rem; text-align: right;">Montante</th>
+                </x-slot:head>
                 
                 @forelse($recentTransactions as $trans)
                     <tr style="border-bottom: 1px solid var(--border);">
@@ -80,13 +78,11 @@
         <x-ui.card>
             <x-slot:header>Saídas Recentes no PDV</x-slot:header>
             <x-ui.table>
-                <x-slot:header>
-                    <tr>
-                        <th style="padding: 1rem; text-align: left;">Cupom ID</th>
-                        <th style="padding: 1rem; text-align: center;">Itens (Mix)</th>
-                        <th style="padding: 1rem; text-align: right;">Total Faturado</th>
-                    </tr>
-                </x-slot:header>
+                <x-slot:head>
+                    <th style="padding: 1rem; text-align: left;">Cupom ID</th>
+                    <th style="padding: 1rem; text-align: center;">Itens (Mix)</th>
+                    <th style="padding: 1rem; text-align: right;">Total Faturado</th>
+                </x-slot:head>
                 
                 @forelse($recentSales as $sale)
                     <tr style="border-bottom: 1px solid var(--border);">

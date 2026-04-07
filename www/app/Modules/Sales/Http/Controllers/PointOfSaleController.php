@@ -117,11 +117,19 @@ class PointOfSaleController extends Controller
             // Salvar e Confirmar DB
             DB::commit();
 
-            return redirect()->route('sales.pos.board')->with('success', "Baixa de Estoque Realizada. R\$ " . number_format($calculatedTotal/100, 2, ',', '.') . " injetados com sucesso no Caixa!");
+            return redirect()->route('sales.pos.board')
+                   ->with('sale_id', $sale->id)
+                   ->with('success', "Baixa de Estoque Realizada. R\$ " . number_format($calculatedTotal/100, 2, ',', '.') . " injetados com sucesso no Caixa!");
 
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Falha na Transação POS: ' . $e->getMessage());
         }
+    }
+
+    public function receipt(Sale $sale)
+    {
+        $sale->load(['items.product', 'seller']);
+        return view('sales::pos.receipt', compact('sale'));
     }
 }
