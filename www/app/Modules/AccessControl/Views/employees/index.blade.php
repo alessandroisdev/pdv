@@ -1,7 +1,7 @@
 <x-layouts.app>
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl fw-bold text-primary">Gestão de Colaboradores Físicos (PIN)</h2>
-        <button class="btn btn-primary" onclick="window.ui.openModal('modal-add-employee')">
+        <button class="btn btn-primary" onclick="document.getElementById('modal-add-employee').showModal()">
             + Novo Colaborador
         </button>
     </div>
@@ -14,8 +14,9 @@
                         <th class="p-4 text-left">PIN Físico</th>
                         <th class="p-4 text-left">Nome</th>
                         <th class="p-4 text-left">Nível Operacional</th>
-                        <th class="p-4 text-left">Conta Web/Painel Vinculada</th>
+                        <th class="p-4 text-left">Conta Web</th>
                         <th class="p-4 text-left">Status</th>
+                        <th class="p-4 text-right">Ações</th>
                     </tr>
                 </x-slot>
                 <x-slot name="body">
@@ -33,11 +34,7 @@
                             @endif
                         </td>
                         <td class="p-4">
-                            @if($employee->user)
-                                {{ $employee->user->email }}
-                            @else
-                                <span class="text-slate-400 italic">Nenhuma (Apenas Físico)</span>
-                            @endif
+                            {{ $employee->user ? $employee->user->email : 'Nenhuma' }}
                         </td>
                         <td class="p-4">
                             @if($employee->status)
@@ -45,6 +42,33 @@
                             @else
                                 <span class="text-slate-500">Inativo</span>
                             @endif
+                        </td>
+                        <td class="p-4 text-right flex justify-end gap-2">
+                            <!-- Badge Maker Button -->
+                            <a href="{{ route('employees.badge', $employee->id) }}" class="btn btn-outline p-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50" title="Imprimir Crachá" target="_blank">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                            </a>
+
+                            <!-- Toggle Status Form -->
+                            <form action="{{ route('employees.toggle-status', $employee->id) }}" method="POST" style="display:inline-block;">
+                                @csrf
+                                <button type="submit" class="btn btn-outline p-2 {{ $employee->status ? 'text-amber-600 border-amber-200' : 'text-emerald-600 border-emerald-200' }}" title="{{ $employee->status ? 'Inativar' : 'Ativar' }}">
+                                    @if($employee->status)
+                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                    @else
+                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    @endif
+                                </button>
+                            </form>
+
+                            <!-- Delete Form -->
+                            <form action="{{ route('employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir permanentemente o operador do sistema?');" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline p-2 text-red-600 border-red-200 hover:bg-red-50" title="Excluir">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     @endforeach
@@ -87,7 +111,7 @@
             </div>
 
             <div class="flex justify-end gap-2">
-                <button type="button" class="btn btn-outline" onclick="window.ui.closeModal('modal-add-employee')">Cancelar</button>
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-add-employee').close()">Cancelar</button>
                 <button type="submit" class="btn btn-primary">Salvar Colaborador</button>
             </div>
         </form>

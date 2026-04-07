@@ -1,7 +1,7 @@
 <x-layouts.app>
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl fw-bold text-primary">Gestão de Fornecedores</h2>
-        <button class="btn btn-primary" onclick="window.ui.openModal('modal-add-supplier')">
+        <button class="btn btn-primary" onclick="document.getElementById('modal-add-supplier').showModal()">
             + Novo Parceiro Mestre
         </button>
     </div>
@@ -80,7 +80,7 @@
             </div>
 
             <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-200">
-                <button type="button" class="btn btn-outline" onclick="window.ui.closeModal('modal-add-supplier')">Cancelar</button>
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-add-supplier').close()">Cancelar</button>
                 <button type="submit" class="btn btn-primary" style="background:#10b981; border:none;">Registrar Fornecedor</button>
             </div>
         </form>
