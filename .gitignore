@@ -1,6 +1,33 @@
+### --- Dependências de PHP (Composer) ---
+# Bloqueia o executável e a pasta vendor em qualquer nível
 /**/*/composer.phar
 /**/*/vendor/
+# Geralmente mantemos o lock em projetos, mas como você solicitou na lista:
 /**/*/composer.lock
-/.idea/
-/.vscode/
-/.agent/
+
+### --- Dependências de JS (Node/Yarn/NPM) ---
+# Ignora pastas de módulos e artefatos de build em qualquer diretório
+/**/*/node_modules/
+/**/*/dist/
+/**/*/build/
+/**/*/out/
+
+# Arquivos de trava e logs de erro
+/**/*/package-lock.json
+/**/*/yarn.lock
+/**/*.log
+/**/*/npm-debug.log*
+/**/*/yarn-debug.log*
+/**/*/yarn-error.log*
+
+### --- IDEs e Ferramentas de Sistema ---
+.idea/
+.vscode/
+.agent/
+.DS_Store
+Thumbs.db
+
+### --- Configurações de Ambiente ---
+/**/*/.env
+/**/*/.env.local
+/**/*/.env.*.local
