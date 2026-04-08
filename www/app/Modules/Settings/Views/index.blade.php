@@ -83,6 +83,15 @@
                             </div>
                         </div>
 
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Ambiente de Operação (SEFAZ)</label>
+                            <select name="settings[fiscal_environment]" class="form-control w-full bg-slate-50 focus:bg-white font-bold border-l-4 border-rose-500 text-rose-700">
+                                <option value="2" {{ ($allSettings['fiscal_environment'] ?? '2') == '2' ? 'selected' : '' }}>AMBIENTE 2: Homologação (Ambiente Seguro de Testes)</option>
+                                <option value="1" {{ ($allSettings['fiscal_environment'] ?? '') == '1' ? 'selected' : '' }}>AMBIENTE 1: Produção (Emissão Legal com Valor Jurídico)</option>
+                            </select>
+                            <p class="text-xs text-slate-400 mt-1">ATENÇÃO: Mudar para Produção emitirá notas reais na Receita Federal sob este CNPJ e Certificado Digital.</p>
+                        </div>
+
                         <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg mb-6 shadow-sm">
                             <h4 class="font-bold text-slate-800 mb-4"><i class="fa fa-key text-indigo-500"></i> Certificado A1 e Tokens</h4>
                             <div class="grid grid-cols-2 gap-6">

@@ -17,11 +17,58 @@
                 <pre class="text-emerald-400 text-sm font-mono m-0"><code>{{ json_encode($sandboxData['config_generated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
             </div>
             
-            <div class="mt-6 flex gap-2">
-                <button class="btn btn-primary bg-indigo-600 hover:bg-indigo-700 text-white font-bold" disabled>
-                    <i class="fa fa-paper-plane"></i> Testar Conexão SOAP SEFAZ (Requer NFePHP instalado)
-                </button>
+            <div class="mt-6 flex flex-col gap-4">
+                <div class="flex gap-2">
+                    <button id="btn-ping" onclick="pingSefaz()" class="btn btn-primary bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded">
+                        <i class="fa fa-plug"></i> Testar Conexão SOAP SEFAZ
+                    </button>
+                </div>
+                <div id="ping-result" class="hidden p-4 rounded-lg text-sm font-mono border">
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function pingSefaz() {
+            const btn = document.getElementById('btn-ping');
+            const resultBox = document.getElementById('ping-result');
+            
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Conectando...';
+            btn.disabled = true;
+            resultBox.classList.add('hidden');
+            resultBox.innerHTML = '';
+
+            fetch('{{ route("fiscal.sandbox.ping") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerHTML = '<i class="fa fa-plug"></i> Testar Conexão SOAP SEFAZ';
+                btn.disabled = false;
+                resultBox.classList.remove('hidden');
+
+                if(data.success) {
+                    resultBox.classList.remove('bg-red-50', 'border-red-200', 'text-red-700');
+                    resultBox.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-700');
+                    resultBox.innerHTML = `<strong>SUCESSO!</strong><br>Status: ${data.status_code}<br>Motivo: ${data.reason}<br>Latência: ${data.latency} Segundos`;
+                } else {
+                    resultBox.classList.remove('bg-emerald-50', 'border-emerald-200', 'text-emerald-700');
+                    resultBox.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+                    resultBox.innerHTML = `<strong>FALHA:</strong><br>${data.error}`;
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = '<i class="fa fa-plug"></i> Testar Conexão SOAP SEFAZ';
+                btn.disabled = false;
+                resultBox.classList.remove('hidden');
+                resultBox.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+                resultBox.innerHTML = `<strong>ERRO FATAL:</strong> Não foi possível comunicar com o servidor interno.`;
+            });
+        }
+    </script>
 </x-layouts.app>

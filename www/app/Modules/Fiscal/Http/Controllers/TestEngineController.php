@@ -28,4 +28,11 @@ class TestEngineController extends Controller
             ], 500);
         }
     }
+
+    public function ping()
+    {
+        // Executa o ping contra a Sefaz
+        $response = $this->engine->pingSefaz();
+        return response()->json($response);
+    }
 }
