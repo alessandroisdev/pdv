@@ -13,7 +13,7 @@ return [
     'modules' => [
         'Core',
         'AccessControl',
-        'HR',         // Adicionando o Módulo de Recursos Humanos
+        'HR',
         'Inventory',
         'Purchasing',
         'Sales',

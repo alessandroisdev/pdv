@@ -113,7 +113,7 @@ class EmployeeController extends Controller
             'name' => 'required|string|max:255',
             'pin' => 'nullable|string|max:10',
             'level' => 'nullable|string',
-            'status' => 'nullable|string',
+            'status' => 'nullable|integer',
             'cpf' => 'nullable|string|max:20',
             'rg' => 'nullable|string|max:20',
             'admission_date' => 'nullable|date',
@@ -194,7 +194,7 @@ class EmployeeController extends Controller
 
             foreach ($employees as $emp) {
                 $salaryCalculated = number_format($emp->base_salary_cents / 100, 2, ',', '.');
-                $status = $emp->status === 'ACTIVE' ? 'Ativo' : 'Desativado';
+                $status = $emp->status == 1 ? 'Ativo' : 'Desativado';
 
                 $row = [
                     $emp->id,

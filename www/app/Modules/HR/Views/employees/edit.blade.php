@@ -63,8 +63,8 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Status Empregatício</label>
                         <select name="status" class="form-control w-full bg-slate-50 focus:bg-white">
-                            <option value="ACTIVE" {{ $employee->status === 'ACTIVE' ? 'selected' : '' }}>🟢 Ativo</option>
-                            <option value="INACTIVE" {{ $employee->status === 'INACTIVE' ? 'selected' : '' }}>🔴 Inativo / Desligado</option>
+                            <option value="1" {{ $employee->status == 1 ? 'selected' : '' }}>🟢 Ativo</option>
+                            <option value="0" {{ $employee->status == 0 ? 'selected' : '' }}>🔴 Inativo / Desligado</option>
                         </select>
                     </div>
                     <div>

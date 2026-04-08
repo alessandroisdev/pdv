@@ -54,7 +54,7 @@
                                 R$ {{ number_format($emp->base_salary_cents / 100, 2, ',', '.') }}
                             </td>
                             <td class="p-4 text-center">
-                                @if($emp->status === 'ACTIVE')
+                                @if($emp->status == 1)
                                     <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">Ativo</span>
                                 @else
                                     <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2 py-1 rounded">Desligado</span>

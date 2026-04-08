@@ -1,4 +1,5 @@
 <x-layouts.app>
+<div class="p-6">
     <div class="flex justify-between items-end mb-6">
         <div>
             <h2 class="text-2xl fw-bold text-slate-800">Definições Globais do Sistema</h2>
@@ -139,7 +140,7 @@
             </div>
         </div>
     </form>
-    
+</div>
     <!-- Incluir Alpine JS caso o master n tenha -->
     <script src="//unpkg.com/alpinejs" defer></script>
 </x-layouts.app>
