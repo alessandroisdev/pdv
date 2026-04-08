@@ -8,4 +8,5 @@ Route::middleware(['web', 'auth'])->prefix('financeiro')->name('finance.')->grou
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/transacoes', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transacoes/export', [TransactionController::class, 'exportCsv'])->name('transactions.export');
+    Route::get('/relatorios', [\App\Modules\Finance\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 });
