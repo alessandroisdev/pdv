@@ -151,20 +151,32 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width,
         height,
-        fullscreen: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true
         }
     });
 
+    // Inicia a janela maximizada (com barra nativa do SO exibindo botões de Minimizar, Restaurar e Fechar)
+    mainWindow.maximize();
+
     // Injeta script local para forçar captura de mouse mesmo dentro da WebView WebHost
     mainWindow.webContents.on('cursor-changed', () => resetIdleTimer());
     mainWindow.webContents.on('before-input-event', () => resetIdleTimer());
 
-    mainWindow.loadURL(`${MATRIZ_URL}`); // Abre a tela de Login do ERP
+    mainWindow.loadURL(`${MATRIZ_URL}/terminal`); // Abre a tela de Login do ERP
     
     const template = [
+        {
+            label: 'Exibição',
+            submenu: [
+                { role: 'togglefullscreen', label: 'Tela Cheia (F11)' },
+                { type: 'separator' },
+                { role: 'minimize', label: 'Minimizar' },
+                { role: 'zoom', label: 'Maximizar / Restaurar' },
+                { role: 'close', label: 'Fechar Aba' }
+            ]
+        },
         {
             label: 'Configurações de Hardware',
             submenu: [
