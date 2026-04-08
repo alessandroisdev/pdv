@@ -20,5 +20,6 @@ return [
         'Finance',
         'Settings',
         'Fiscal',
+        'CRM',
     ],
 ];

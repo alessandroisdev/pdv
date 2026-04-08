@@ -5,19 +5,29 @@ namespace App\Http\Controllers;
 /**
  * @OA\Info(
  *      version="1.0.0",
- *      title="Terminal PDV e ERP - API corporativa",
- *      description="Documentação OpenApi para integração do ERP Curitiba Serviços. Endpoints cobrem RH, Vendas, Inventário e Financeiro.",
+ *      title="GestãoPDV ERP API",
+ *      description="Documentação Interativa da API (Omnichannel e Mobile).",
  *      @OA\Contact(
- *          email="suporte@curitibaservicos.com"
+ *          email="alessandro@gestaopdv.com"
  *      )
  * )
  *
  * @OA\Server(
  *      url=L5_SWAGGER_CONST_HOST,
- *      description="Servidor Primário"
+ *      description="API Server"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *      securityScheme="bearerAuth",
+ *      type="http",
+ *      scheme="bearer"
  * )
  */
-abstract class Controller
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
+
+class Controller extends BaseController
 {
-    //
+    use AuthorizesRequests, ValidatesRequests;
 }
