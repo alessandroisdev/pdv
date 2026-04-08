@@ -4,7 +4,7 @@ const fs = require('fs');
 const axios = require('axios');
 
 // Configure connection to local server Matriz
-const MATRIZ_URL = 'http://localhost'; // Em Produção, isso viria de um .env ou input
+const MATRIZ_URL = 'http://localhost:8000'; // Em Produção, isso viria de um .env ou input
 
 let mainWindow;
 let standbyWindow;

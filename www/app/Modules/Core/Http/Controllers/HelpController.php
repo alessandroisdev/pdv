@@ -30,9 +30,24 @@ class HelpController extends Controller
                 'content' => 'O Gestão PDV conta com o padrão Owen-It ativado. Qualquer edição crítica (Preços, Usuários, Status) fica cravada em uma tabela oculta imutável. Você pode ir em "Auditoria & Segurança" para consultar com visão dif (ex: antes era R$ 5, virou R$ 10, e verificar o IP da ação e a data exata).'
             ],
             [
-                'title' => 'Autorizações Restritas (Sangria, Reforço, Excluir Item)',
-                'tags' => ['pdv', 'caixa', 'autorizacao', 'supervisor'],
-                'content' => 'Para evitar fraudes no caixa aberto, ações como Sangria (Tirar dinheiro para pagamentos/depósito), Reforço (Colocar troco inicial) ou Excluir Produto da nota trancam a tela imediatamente. Somente um Colaborador com cargo `SUPERVISOR` pode digitar o seu próprio PIN como segunda chave para injetar permissão temporária e confirmar a operação.'
+                'title' => 'Como disparo campanhas em massa (CRM)?',
+                'tags' => ['marketing', 'crm', 'retencao'],
+                'content' => 'Dentro de "Marketing & CRM", você tem o botão de Disparo. O gatilho "Inativos" rastreia automaticamente quem comprou há mais de 60 dias (ou outro critério definido) usando o cruzamento de banco de dados do PDV, disparando E-mail/Notificações para recuperar a clientela.'
+            ],
+            [
+                'title' => 'O que é a TV Promocional (Sinalização Standby)?',
+                'tags' => ['display', 'marketing', 'pdv', 'kiosk'],
+                'content' => 'Ao subir vídeos (Vídeo Coca-Cola, MenuBoard) pelo painel, o App Desktop sincroniza todos os Media Files permanentemente para a gaveta cache (Offline) do Windows. Assim, se o Operador de Caixa soltar o mouse por 30 segundos, a tela vira uma imensa e maravilhosa vitrine Promocional dinâmica que não devora a Banda Larga e acoplada perfeitamente na frente de caixa!'
+            ],
+            [
+                'title' => 'Como utilizar o Catálogo Eletrônico Omnichannel (Autoatendimento / Totem)?',
+                'tags' => ['totem', 'vendas', 'ecommerce', 'catalogo'],
+                'content' => 'Todo cliente pode apontar a câmera do celular para um QRCode impresso ou o restaurante pode ter Tablets presos na mesa! O caminho "http://[HOST]/catalogo" abre nossa PWA otimizada. Ao pedirem pelo cardápio digital, a venda abate o inventário (Pessimistic Locking) e escoa a transação diretamente nas artérias do Livro Razão Centralizado. Mágica absoluta!'
+            ],
+            [
+                'title' => 'A Tesouraria e o Livro Razão trabalham juntos?',
+                'tags' => ['financeiro', 'boletos', 'credito'],
+                'content' => 'Sim! Contas a Pagar/Receber não são meros lembretes. Ao dar baixa num boleto (Installment) na interface "A Receber/Pagar", a sua ação automaticamente executa um fluxo trancado no Livro Caixa global do negócio, mantendo o controle total dos Faturamentos passivos/ativos e de Balcão todos harmonizados na Dashboard Financeira.'
             ]
         ];
 
