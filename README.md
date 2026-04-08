@@ -74,12 +74,12 @@ Ele carrega uma bela versão Tailwind Mobile. O cliente põe compras no carrinho
 ## 📺 4. App Desktop Kiosk e A TV Promocional (Digital Signage)
 
 Esqueça Google Chrome no terminal de Frente de Loja (Ponto de Venda onde fica o Atendente/Opérador). Eles poderão fechar abas e mexer no Windows aleatoriamente.
-Foi embalado na pasta `./descktop/` a versão robusta nativa em C++/Chromium Kiosk!
+Foi embalado na pasta `./desktop-pos/` a versão robusta nativa em C++/Chromium Kiosk!
 
 ### Instalação (Build do App)
 Para entregar para o dono do supermercado o arquivo de Instalação Real:
 ```bash
-cd descktop
+cd desktop-pos
 npm install
 npm run build:win   # Gera um belo instalador .EXE para Windows!
 # ou
@@ -90,7 +90,7 @@ Após instalado no PC, execute o aplicativo _GestãoPDV_.
 ### A Funcionalidade "Standby Mídia Invisível (Caching Puro)"
 A aba Mídia (`standby.html` no Electron core) possui autonomia plena de Wi-Fi e Banda:
 1. No Backend Laravel web (Como Gestor), vá em Mídia Standby, determine que "Se inativo após 30 segundos, exiba Mídias". Faça upload de MP4s Pesados de promoção da Coca-Cola e Imagens `JPEG` definindo quantos Segundos de Fade e Carregamento (Duração do Slide) cada Painel rodará em loop.
-2. No App Desktop `./descktop`, quando a tela carregar, um túnel em plano de fundo via `Axios` fará download permanente dos MP4 pesados salvando no Disco local `(AppData\Roaming)`. O Backend pode até cair ou ficar sem internet, a Loja NUNCA parará de exibir promoções em FulHD! Todo Movimento de mouse do operador, tira a proteção Digital e faz voltar à caixa registradora de luz nativa!
+2. No App Desktop `./desktop-pos`, quando a tela carregar, um túnel em plano de fundo via `Axios` fará download permanente dos MP4 pesados salvando no Disco local `(AppData\Roaming)`. O Backend pode até cair ou ficar sem internet, a Loja NUNCA parará de exibir promoções em FulHD! Todo Movimento de mouse do operador, tira a proteção Digital e faz voltar à caixa registradora de luz nativa!
 
 ---
 

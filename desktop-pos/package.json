@@ -1,17 +1,17 @@
 {
   "name": "gestao-pdv-desktop",
   "version": "1.0.0",
-  "description": "Frente de Caixa (PDV) - Enterprise Edition Desktop",
+  "description": "Enterprise Kiosk & Digital Signage PDV",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux"
+    "build:win": "electron-builder --win --x64",
+    "build:linux": "electron-builder --linux deb"
   },
-  "author": "Alessandro JS Dev",
-  "license": "MIT",
+  "author": "GestãoPDV",
+  "license": "ISC",
   "dependencies": {
-    "electron-store": "^8.1.0"
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "electron": "^28.0.0",
@@ -19,13 +19,18 @@
   },
   "build": {
     "appId": "com.gestaopdv.desktop",
-    "productName": "PDV Frente de Caixa",
+    "productName": "GestãoPDV Desktop",
     "win": {
-      "target": ["nsis", "portable"],
+      "target": "nsis",
       "icon": "icon.ico"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
     "linux": {
-      "target": ["AppImage", "deb"]
+      "target": ["deb"],
+      "category": "Office"
     }
   }
 }
