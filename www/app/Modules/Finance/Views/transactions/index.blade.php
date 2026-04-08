@@ -6,9 +6,9 @@
             <h1 style="font-size: 1.75rem; color: var(--primary); font-weight: 800; letter-spacing: -0.025em;">Livro Razão Transacional</h1>
             <p style="color: var(--text-secondary); margin-top: 0.25rem;">Auditoria contábil imutável (Append-Only) e visibilidade total do caixa.</p>
         </div>
-        <button class="btn btn-primary">
-            Exportar Auditoria (CSV)
-        </button>
+        <a href="{{ route('finance.transactions.export') }}" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; text-decoration: none;">
+            <i class="fa fa-download"></i> Exportar Auditoria (CSV)
+        </a>
     </div>
 
     <!-- Indicadores Financeiros Totais -->
@@ -30,6 +30,49 @@
             </h2>
         </x-ui.card>
     </div>
+
+    <!-- Indicadores Táticos do Dia -->
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Faturamento Hoje</p>
+                <h3 style="font-size: 1.75rem; color: #334155; font-weight: 800; margin: 0;">{{ format_money($todayIncome) }}</h3>
+            </div>
+            <div style="background: rgba(59,130,246,0.1); color: #3b82f6; padding: 1rem; border-radius: 50%;">
+                🛒
+            </div>
+        </div>
+        <div style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Ticket Médio (Hoje)</p>
+                <h3 style="font-size: 1.75rem; color: #334155; font-weight: 800; margin: 0;">{{ format_money($ticketMedio) }}</h3>
+            </div>
+            <div style="background: rgba(168,85,247,0.1); color: #a855f7; padding: 1rem; border-radius: 50%;">
+                📈
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas de Auditoria -->
+    @if(isset($caixasComDivergencia) && count($caixasComDivergencia) > 0)
+    <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="color: #e11d48; margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa fa-exclamation-triangle"></i> ALERTAS DE AUDITORIA: QUEBRA DE CAIXA</h3>
+        <div style="display: grid; gap: 1rem;">
+            @foreach($caixasComDivergencia as $caixa)
+                <div style="background: white; padding: 1rem; border-radius: 6px; border-left: 4px solid #f43f5e; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: #475569;">Turno de Caixa #{{ str_pad($caixa->id, 4, '0', STR_PAD_LEFT) }}</strong>
+                        <div style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">Fechado em: {{ $caixa->closed_at ? clone $caixa->closed_at->format('d/m/Y H:i') : 'Desconhecido' }}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Divergência Reportada</div>
+                        <strong style="color: #e11d48; font-size: 1.25rem;">R$ {{ number_format($caixa->difference_cents / 100, 2, ',', '.') }}</strong>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <!-- Tabela Geral de Transações -->
     <x-ui.card>

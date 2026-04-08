@@ -13,9 +13,11 @@ return [
     'modules' => [
         'Core',
         'AccessControl',
+        'HR',         // Adicionando o Módulo de Recursos Humanos
         'Inventory',
         'Purchasing',
         'Sales',
         'Finance',
+        'Settings',
     ],
 ];

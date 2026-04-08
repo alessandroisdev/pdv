@@ -21,10 +21,35 @@
                     <small style="color: #64748b; font-size:0.75rem; display:block; margin-top:0.75rem;">A conferência contra os extratos digitais de Cartão/Pix será gerada automaticamente no relatório matriz do sistema.</small>
                 </div>
 
-                <button type="submit" class="btn" style="background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(185,28,28,0.4) 100%); color:#fca5a5; width: 100%; padding: 1rem; font-size: 1.1rem; border: 1px solid rgba(239,68,68,0.5); border-radius: 8px; cursor:pointer; font-weight:bold; letter-spacing: 0.05em;" onclick="return confirm('ATENÇÃO: Você não poderá corrigir este valor após encerrar. Tem certeza?')">
+                <button type="button" class="btn" style="background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(185,28,28,0.4) 100%); color:#fca5a5; width: 100%; padding: 1rem; font-size: 1.1rem; border: 1px solid rgba(239,68,68,0.5); border-radius: 8px; cursor:pointer; font-weight:bold; letter-spacing: 0.05em;" onclick="confirmCloseShift(event)">
                     🛑 GRAVAR E ENCERRAR
                 </button>
             </form>
+
+            <script>
+                function confirmCloseShift(e) {
+                    if (window.Swal) {
+                        window.Swal.fire({
+                            title: 'Encerrar Turno?',
+                            text: 'ATENÇÃO: Você não poderá corrigir este valor após encerrar. Tem certeza?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#ef4444',
+                            cancelButtonColor: '#475569',
+                            confirmButtonText: 'Sim, Encerrar',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                document.getElementById('blindCloseForm').submit();
+                            }
+                        });
+                    } else {
+                        if (confirm('ATENÇÃO: Você não poderá corrigir este valor após encerrar. Tem certeza?')) {
+                            document.getElementById('blindCloseForm').submit();
+                        }
+                    }
+                }
+            </script>
             
             <a href="{{ $prefixPath }}" style="display:block; margin-top: 1.5rem; color: #64748b; text-decoration: none; font-size:0.9rem;">&larr; Voltar para o Caixa (Não Fechar)</a>
         </div>

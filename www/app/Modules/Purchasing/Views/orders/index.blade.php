@@ -58,9 +58,9 @@
                         </td>
                         <td class="p-4 text-right">
                             @if($order->status === 'PENDING')
-                            <form action="{{ route('purchasing.orders.receive', $order->id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Deseja dar entrada definitiva nesta carga?\n\nOs itens serão injetados no Estoque e o custo repassado à Média do Produto. O valor total vai gerar Contas a Pagar no Financeiro.');">
+                            <form action="{{ route('purchasing.orders.receive', $order->id) }}" method="POST" id="receive-form-{{$order->id}}">
                                 @csrf
-                                <button type="submit" class="btn text-sm py-1 px-3 bg-emerald-600 hover:bg-emerald-700 text-white border-none rounded shadow-sm">
+                                <button type="button" onclick="confirmReceive({{$order->id}})" class="btn text-sm py-1 px-3 bg-emerald-600 hover:bg-emerald-700 text-white border-none rounded shadow-sm">
                                     <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     Dar Entrada
                                 </button>

@@ -11,7 +11,8 @@
         "laravel/tinker": "^3.0",
         "owen-it/laravel-auditing": "^14.0",
         "picqer/php-barcode-generator": "^3.2",
-        "simplesoftwareio/simple-qrcode": "^4.2"
+        "simplesoftwareio/simple-qrcode": "^4.2",
+        "darkaonline/l5-swagger": "^8.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -26,7 +27,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/SettingsHelper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

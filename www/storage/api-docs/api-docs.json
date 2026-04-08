@@ -1,0 +1,134 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Terminal PDV e ERP - API corporativa",
+        "description": "Documentação OpenApi para integração do ERP Curitiba Serviços. Endpoints cobrem RH, Vendas, Inventário e Financeiro.",
+        "contact": {
+            "email": "suporte@curitibaservicos.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "Servidor Primário"
+        }
+    ],
+    "paths": {
+        "/api/finance/transactions": {
+            "get": {
+                "tags": [
+                    "Gestão Financeira"
+                ],
+                "summary": "Extrato Financeiro e Dashboard",
+                "description": "Consulta as transações globais e obtém os agregados de faturamento.",
+                "operationId": "95f7c0a35092bcca20fe19473fac3b99",
+                "responses": {
+                    "200": {
+                        "description": "Payload de Transações e Métricas"
+                    }
+                }
+            }
+        },
+        "/api/finance/transactions/export": {
+            "get": {
+                "tags": [
+                    "Gestão Financeira"
+                ],
+                "summary": "Exportar Balancete Contábil",
+                "description": "Gera uma planilha em formato CSV com toda movimentação do sistema ERP.",
+                "operationId": "2754f5b3c3937d6c55ffcc8ec04d977b",
+                "responses": {
+                    "200": {
+                        "description": "Arquivo CSV"
+                    }
+                }
+            }
+        },
+        "/api/hr/employees": {
+            "get": {
+                "tags": [
+                    "Recursos Humanos"
+                ],
+                "summary": "Listar Funcionários",
+                "description": "Retorna a lista de colaboradores incluindo dados de folha e status de acesso.",
+                "operationId": "518d03cd473804baa2d8662f4508afc9",
+                "responses": {
+                    "200": {
+                        "description": "Operação bem-sucedida"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Recursos Humanos"
+                ],
+                "summary": "Registrar Funcionário",
+                "description": "Cadastra um novo colaborador no sistema",
+                "operationId": "3a7562bf719063d0738f8861bca577b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Maria Souza"
+                                    },
+                                    "cpf": {
+                                        "type": "string",
+                                        "example": "12345678909"
+                                    },
+                                    "role_description": {
+                                        "type": "string",
+                                        "example": "Caixa Master"
+                                    },
+                                    "base_salary_cents": {
+                                        "type": "integer",
+                                        "example": 350000
+                                    },
+                                    "pin": {
+                                        "type": "string",
+                                        "example": "4455"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/hr/employees/export": {
+            "get": {
+                "tags": [
+                    "Recursos Humanos"
+                ],
+                "summary": "Exportar Dados RH",
+                "description": "Baixa o arquivo CSV com toda a estrutura salarial",
+                "operationId": "a2a1c817b17e913ac384d58f8c72dc6a",
+                "responses": {
+                    "200": {
+                        "description": "Arquivo CSV"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Gestão Financeira",
+            "description": "Operações de Caixa, Extratos e Exportações"
+        },
+        {
+            "name": "Recursos Humanos",
+            "description": "Gerenciamento da Equipe e Colaboradores (CRUD & Exportação)"
+        }
+    ]
+}
