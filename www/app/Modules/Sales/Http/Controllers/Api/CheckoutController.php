@@ -71,21 +71,27 @@ class CheckoutController extends Controller
             foreach ($payload['items'] as $itemData) {
                 $product = \App\Modules\Inventory\Models\Product::lockForUpdate()->find($itemData['product_id']);
                 
-                if ($product->stock_quantity < $itemData['quantity']) {
+                if ($product->current_stock < $itemData['quantity']) {
                     throw new \Exception("Estoque insuficiente para o produto {$product->name}");
                 }
 
-                $product->stock_quantity -= $itemData['quantity'];
-                $product->save();
+                \App\Modules\Inventory\Models\StockMovement::create([
+                    'product_id' => $product->id,
+                    'actor_id' => 1, // Robô Checkout API
+                    'actor_type' => 'App\Models\User',
+                    'type' => 'OUT',
+                    'quantity' => $itemData['quantity'],
+                    'transaction_motive' => 'OMNICHANNEL API / VENDA #' . $sale->id
+                ]);
 
                 $saleItem = new SaleItem();
                 $saleItem->sale_id = $sale->id;
                 $saleItem->product_id = $product->id;
                 $saleItem->quantity = $itemData['quantity'];
-                $saleItem->unit_price_cents = $product->price_cents;
+                $saleItem->unit_price_cents = $product->price_cents_sale;
                 $saleItem->save();
 
-                $total += ($product->price_cents * $itemData['quantity']);
+                $total += ($product->price_cents_sale * $itemData['quantity']);
             }
 
             $sale->total_cents = $total;

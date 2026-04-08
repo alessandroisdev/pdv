@@ -18,10 +18,13 @@ class CatalogController extends Controller
      */
     public function index()
     {
-        // Pega produtos com estoque disponível apenas
-        $products = Product::where('stock_quantity', '>', 0)
+        // Pega produtos ativos e filtra na memória via a soma do Módulo de Inventário
+        $products = Product::where('status', 'ACTIVE')
                            ->orderBy('name', 'asc')
-                           ->get();
+                           ->get()
+                           ->filter(function($product) {
+                               return $product->current_stock > 0;
+                           });
 
         return view('sales::catalog.index', compact('products'));
     }
@@ -62,21 +65,27 @@ class CatalogController extends Controller
                 // LOCK FOR UPDATE: Se 2 mesas tentarem pedir a última Coca, a 2ª vai falhar elegantemente
                 $product = Product::lockForUpdate()->find($itemData['product_id']);
                 
-                if ($product->stock_quantity < $itemData['quantity']) {
+                if ($product->current_stock < $itemData['quantity']) {
                     throw new \Exception("Vix! Alguém foi mais rápido. O estoque de {$product->name} esgotou.");
                 }
 
-                $product->stock_quantity -= $itemData['quantity'];
-                $product->save();
+                \App\Modules\Inventory\Models\StockMovement::create([
+                    'product_id' => $product->id,
+                    'actor_id' => 1, // Robô
+                    'actor_type' => 'App\Models\User',
+                    'type' => 'OUT',
+                    'quantity' => $itemData['quantity'],
+                    'transaction_motive' => 'FRENTE DE CAIXA TOTEM / VENDA #' . $sale->id
+                ]);
 
                 $saleItem = new SaleItem();
                 $saleItem->sale_id = $sale->id;
                 $saleItem->product_id = $product->id;
                 $saleItem->quantity = $itemData['quantity'];
-                $saleItem->unit_price_cents = $product->price_cents;
+                $saleItem->unit_price_cents = $product->price_cents_sale;
                 $saleItem->save();
 
-                $total += ($product->price_cents * $itemData['quantity']);
+                $total += ($product->price_cents_sale * $itemData['quantity']);
             }
 
             $sale->total_cents = $total;
