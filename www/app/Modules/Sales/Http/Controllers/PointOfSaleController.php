@@ -8,12 +8,23 @@ use App\Modules\Sales\Models\CashRegister;
 use App\Modules\Sales\Models\Sale;
 use App\Modules\Sales\Models\SaleItem;
 use App\Modules\Finance\Models\Transaction;
+use App\Modules\Fiscal\Services\NfceEngineService;
+use App\Modules\Core\Services\ThermalPrinterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class PointOfSaleController extends Controller
 {
+    protected $nfeService;
+    protected $printerService;
+
+    public function __construct(NfceEngineService $nfeService, ThermalPrinterService $printerService)
+    {
+        $this->nfeService = $nfeService;
+        $this->printerService = $printerService;
+    }
+
     private function getBoardRoute($request = null)
     {
         $req = $request ?? request();
@@ -203,12 +214,25 @@ class PointOfSaleController extends Controller
             $transaction->source_id = $sale->id;
             $transaction->save();
 
-            // Salvar e Confirmar DB
+            // Salvar e Confirmar DB (A partir daqui o dinheiro e estoque são irreversíveis nativamente)
             DB::commit();
+
+            // 5. Integração Fiscal (Sefaz)
+            // Emitimos o documento e guardamos o protocolo.
+            $fiscalDoc = $this->nfeService->transmitMockSale($sale);
+
+            // 6. Integração Hardware (Impressora Minitérmica TCP)
+            // Faremos a tentativa em modalidade Try-Catch interno para não quebrar a view se a impressora desligar no exato milissegundo.
+            $this->printerService->printReceipt($sale, $fiscalDoc);
+
+            $statusText = "Baixa de Estoque Realizada. " . format_money($calculatedTotal) . " recebidos. Recibo enviado para impressora!";
+            if ($fiscalDoc->status === 'CONTINGENCIA_OFFLINE') {
+                $statusText .= " (Aviso: Sefaz Inalcançável, NFC-e gravada em contingência).";
+            }
 
             return redirect()->route($this->getBoardRoute($request))
                    ->with('sale_id', $sale->id)
-                   ->with('success', "Baixa de Estoque Realizada. " . format_money($calculatedTotal) . " injetados com sucesso no Caixa!");
+                   ->with('success', $statusText);
 
         } catch (\Exception $e) {
             DB::rollBack();

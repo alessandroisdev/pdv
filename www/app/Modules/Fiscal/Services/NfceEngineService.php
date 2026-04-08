@@ -142,4 +142,33 @@ class NfceEngineService
         
         return $dom->saveXML();
     }
+
+    /**
+     * Tenta Transmitir a Venda Ativa gerando a NFC-e.
+     */
+    public function transmitMockSale(Sale $sale): \App\Modules\Fiscal\Models\FiscalDocument
+    {
+        // 1. Instancia Documento Base
+        $doc = new \App\Modules\Fiscal\Models\FiscalDocument();
+        $doc->transaction_id = $sale->id;
+        $doc->document_type = 'NFC-E';
+        $doc->status = 'AGUARDANDO_PROCESSAMENTO';
+        $doc->save();
+
+        // 2. Faz o Handshake com a Sefaz real para testar lentidão configurativa (A latência é sentida no PDV!)
+        $ping = $this->pingSefaz();
+        if (!$ping['success']) {
+            $doc->status = 'CONTINGENCIA_OFFLINE';
+            $doc->notes = "Sefaz inalcançável. Gravado para envio em background (Contingência). Erro: " . $ping['error'];
+        } else {
+            $doc->status = 'AUTORIZADO';
+            // Gera um Mock Numérico de Autorização para a View/Cupom
+            $doc->protocol_number = '141' . date('YmdHis') . rand(100, 999);
+            // QR Code Mock
+            $doc->notes = "Autorizado Experimentalmente no Ambiente " . Setting::where('key', 'fiscal_environment')->value('value');
+        }
+        
+        $doc->save();
+        return $doc;
+    }
 }

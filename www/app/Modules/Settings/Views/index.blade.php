@@ -136,6 +136,19 @@
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Rodapé Imutável do Cupom (Obrigado pela preferência)</label>
                             <textarea name="settings[pos_receipt_footer]" class="form-control w-full h-24 bg-slate-50 focus:bg-white" placeholder="Agradecemos sua visita! Deus é fiel.">{{ $allSettings['pos_receipt_footer'] ?? '' }}</textarea>
                         </div>
+                        
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg mb-6 shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-4"><i class="fa fa-plug text-indigo-500"></i> Diagnóstico de Hardware ESC/POS</h4>
+                            <div class="flex flex-col gap-4">
+                                <div class="flex gap-2">
+                                    <button type="button" id="btn-test-printer" onclick="testThermalPrinter()" class="btn btn-primary bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded">
+                                        <i class="fa fa-print"></i> Testar Guincho e Corte (Requer salvar o IP primeiro)
+                                    </button>
+                                </div>
+                                <div id="printer-result" class="hidden p-4 rounded-lg text-sm font-mono border">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Footer Salvar -->
@@ -152,4 +165,45 @@
 </div>
     <!-- Incluir Alpine JS caso o master n tenha -->
     <script src="//unpkg.com/alpinejs" defer></script>
+    
+    <script>
+        function testThermalPrinter() {
+            const btn = document.getElementById('btn-test-printer');
+            const resultBox = document.getElementById('printer-result');
+            
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Disparando Impressão TCP/IP...';
+            btn.disabled = true;
+            resultBox.classList.add('hidden');
+            resultBox.innerHTML = '';
+
+            fetch('{{ route("settings.printer.test") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerHTML = '<i class="fa fa-print"></i> Testar Guincho e Corte (Requer salvar o IP primeiro)';
+                btn.disabled = false;
+                resultBox.classList.remove('hidden');
+
+                if(data.success) {
+                    resultBox.className = 'p-4 rounded-lg text-sm font-mono border bg-emerald-50 border-emerald-200 text-emerald-700';
+                    resultBox.innerHTML = `<strong>SUCESSO TÉRMICO:</strong><br>${data.message}`;
+                } else {
+                    resultBox.className = 'p-4 rounded-lg text-sm font-mono border bg-red-50 border-red-200 text-red-700';
+                    resultBox.innerHTML = `<strong>FALHA NA CONEXÃO:</strong><br>${data.error}`;
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = '<i class="fa fa-print"></i> Testar Guincho e Corte (Requer salvar o IP primeiro)';
+                btn.disabled = false;
+                resultBox.classList.remove('hidden');
+                resultBox.className = 'p-4 rounded-lg text-sm font-mono border bg-red-50 border-red-200 text-red-700';
+                resultBox.innerHTML = `<strong>ERRO FATAL DE SERVIDOR:</strong> Ocorreu um erro no PHP ou HTTP.`;
+            });
+        }
+    </script>
 </x-layouts.app>

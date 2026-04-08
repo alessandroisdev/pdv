@@ -10,6 +10,7 @@
         "darkaonline/l5-swagger": "^8.6",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
+        "mike42/escpos-php": "^2.2",
         "nfephp-org/sped-nfe": "^5.2",
         "owen-it/laravel-auditing": "^14.0",
         "picqer/php-barcode-generator": "^3.2",

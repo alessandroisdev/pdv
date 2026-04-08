@@ -147,6 +147,13 @@
         </div>
     </aside>
 
+    <!-- Loader Fullscreen (Atraso Sefaz) -->
+    <div id="sefaz-loader" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="font-size: 4rem; color: #38bdf8; animation: pulse 1s infinite alternate;">🧾</div>
+        <h2 style="color: white; margin-top: 1rem; font-size: 1.5rem; font-weight: bold; letter-spacing: 0.05em;">PROCESSANDO PAGAMENTO...</h2>
+        <p style="color: #94a3b8; font-size: 1rem; margin-top: 0.5rem;" id="sefaz-loader-text">Emitindo NFC-e e acionando Minitérmica (SEFAZ)...</p>
+    </div>
+
     @if(session('sale_id'))
         <script>
             window.addEventListener('DOMContentLoaded', () => {
@@ -347,6 +354,9 @@
                     items: this.cart.map(i => ({ id: i.id, quantity: i.quantity }))
                 });
                 
+                // Overlay Loader Sefaz
+                document.getElementById('sefaz-loader').style.display = 'flex';
+                
                 this.form.submit();
             },
 
@@ -527,6 +537,10 @@
         }
         .glass-btn:active {
             transform: translateY(1px);
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.1); opacity: 1; }
         }
     </style>
 </x-layouts.pos>
