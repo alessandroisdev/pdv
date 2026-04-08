@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <div class="flex justify-between items-center mb-6">
+    <div class="mb-4 flex justify-between items-center">
         <h2 class="text-2xl fw-bold text-primary">Gestão de Fornecedores</h2>
         <button class="btn btn-primary" onclick="document.getElementById('modal-add-supplier').showModal()">
             + Novo Parceiro Mestre
@@ -7,43 +7,43 @@
     </div>
 
     <div class="card">
-        <div class="card-body p-0">
-            <x-ui.table>
-                <x-slot name="head">
-                    <tr>
-                        <th class="p-4 text-left">Razão Social (Empresa)</th>
-                        <th class="p-4 text-left">CNPJ / CPF</th>
-                        <th class="p-4 text-left">Contato</th>
-                        <th class="p-4 text-left">Status</th>
+        <div class="card-body" style="padding: 0; overflow-x: auto;">
+            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                        <th style="padding: 1rem; text-align: left;">Razão Social (Empresa)</th>
+                        <th style="padding: 1rem; text-align: left;">CNPJ / CPF</th>
+                        <th style="padding: 1rem; text-align: left;">Contato</th>
+                        <th style="padding: 1rem; text-align: left;">Status</th>
                     </tr>
-                </x-slot>
-                <x-slot name="body">
+                </thead>
+                <tbody>
                     @forelse($suppliers as $supplier)
-                    <tr class="border-b transition hover:bg-slate-50">
-                        <td class="p-4">
-                            <strong class="text-slate-800">{{ $supplier->company_name }}</strong><br>
-                            <small class="text-slate-500">{{ $supplier->trade_name ?? '---' }}</small>
+                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
+                        <td style="padding: 1rem;">
+                            <strong style="color: #1e293b;">{{ $supplier->company_name }}</strong><br>
+                            <small class="text-light">{{ $supplier->trade_name ?? '---' }}</small>
                         </td>
-                        <td class="p-4">{{ $supplier->cnpj_cpf }}</td>
-                        <td class="p-4">
+                        <td style="padding: 1rem;">{{ $supplier->cnpj_cpf }}</td>
+                        <td style="padding: 1rem;">
                             <div>{{ $supplier->email ?? 'Sem E-mail' }}</div>
-                            <div class="text-slate-500 text-sm">{{ $supplier->phone ?? 'Sem Telefone' }}</div>
+                            <div class="text-light text-sm">{{ $supplier->phone ?? 'Sem Telefone' }}</div>
                         </td>
-                        <td class="p-4">
+                        <td style="padding: 1rem;">
                             @if($supplier->is_active)
-                                <span class="badge text-xs bg-emerald-100 text-emerald-700 font-bold" style="padding: 2px 6px; border-radius:4px;">ATIVO</span>
+                                <span style="background-color: #d1fae5; color: #047857; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px;">ATIVO</span>
                             @else
-                                <span class="badge text-xs bg-slate-100 text-slate-700 font-bold" style="padding: 2px 6px; border-radius:4px;">INATIVO</span>
+                                <span style="background-color: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px;">INATIVO</span>
                             @endif
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="p-6 text-center text-slate-500">Nenhum fornecedor logístico cadastrado.</td>
+                        <td colspan="4" style="padding: 2rem; text-align: center; color: #64748b;">Nenhum fornecedor logístico cadastrado.</td>
                     </tr>
                     @endforelse
-                </x-slot>
-            </x-ui.table>
+                </tbody>
+            </table>
         </div>
     </div>
 

@@ -57,23 +57,35 @@ async function fetchSignageConfig() {
         for (let media of medias) {
             const fileName = path.basename(media.url);
             const filePath = path.join(cacheDir, fileName);
+            let finalUri = '';
             
-            // Verifica se o arquivo local já existe (Evita re-download e buffering)
+            // Usa .tmp para evitar que o player tente ler arquivos não finalizados e corrompa a execução
             if (!fs.existsSync(filePath)) {
                 console.log(`Baixando mídia para Standby: ${media.url}`);
-                const writer = fs.createWriteStream(filePath);
-                const req = await axios.get(media.url, { responseType: 'stream' });
-                req.data.pipe(writer);
-                await new Promise((resolve, reject) => {
-                    writer.on('finish', resolve);
-                    writer.on('error', reject);
-                });
+                const tmpPath = filePath + '.tmp';
+                try {
+                    const writer = fs.createWriteStream(tmpPath);
+                    const req = await axios.get(media.url, { responseType: 'stream', timeout: 30000 });
+                    req.data.pipe(writer);
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                    });
+                    fs.renameSync(tmpPath, filePath); // Renomeia atômicamente ao finalizar download
+                    finalUri = 'file://' + filePath;
+                } catch (err) {
+                    console.error(`Erro ao baixar ${media.url}:`, err.message);
+                    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+                    finalUri = media.url; // Resiliência: em caso de falha de download, tenta streaming
+                }
+            } else {
+                finalUri = 'file://' + filePath;
             }
             
             cachedFiles.push({
                 type: media.type,
-                file_path: filePath,
-                duration_seconds: media.duration_seconds
+                file_path: finalUri,
+                duration_seconds: media.duration_seconds || 15
             });
         }
         
@@ -85,10 +97,10 @@ async function fetchSignageConfig() {
         const cacheDir = path.join(appDataPath, 'SignageCache');
         if (fs.existsSync(cacheDir)) {
             const files = fs.readdirSync(cacheDir);
-            return files.map(f => ({
-                type: f.endsWith('.mp4') ? 'VIDEO' : 'IMAGE',
-                file_path: path.join(cacheDir, f),
-                duration_seconds: 10
+            return files.filter(f => !f.endsWith('.tmp')).map(f => ({
+                type: (f.endsWith('.mp4') || f.endsWith('.webm')) ? 'VIDEO' : 'IMAGE',
+                file_path: 'file://' + path.join(cacheDir, f),
+                duration_seconds: 15
             }));
         }
         return [];
@@ -153,7 +165,8 @@ function createWindow() {
         height,
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: true
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
         }
     });
 
@@ -214,4 +227,24 @@ app.on('window-all-closed', () => {
 // IPCListeners
 ipcMain.on('user-activity', () => {
     resetIdleTimer();
+});
+
+ipcMain.on('window-minimize', () => {
+    if (mainWindow) mainWindow.minimize();
+});
+
+ipcMain.on('window-maximize-restore', () => {
+    if (mainWindow) {
+        if (mainWindow.isMaximized()) {
+            mainWindow.restore();
+        } else {
+            mainWindow.maximize();
+        }
+    }
+});
+
+ipcMain.on('window-toggle-fullscreen', () => {
+    if (mainWindow) {
+        mainWindow.setFullScreen(!mainWindow.isFullScreen());
+    }
 });

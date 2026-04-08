@@ -1,12 +1,11 @@
 <x-layouts.app>
-    <div class="mb-6 flex justify-between items-end">
+    <div class="mb-4 flex justify-between items-center">
         <div>
             <h2 class="text-2xl fw-bold text-primary">Inserir Carga Recebida (NF-e)</h2>
-            <p class="text-slate-500">Bipe os produtos físicos para adicionar ao Romaneio de Entrada.</p>
+            <p class="text-light">Bipe os produtos físicos para adicionar ao Romaneio de Entrada.</p>
         </div>
-        <a href="{{ route('purchasing.orders.index') }}" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Voltar para Pedidos
+        <a href="{{ route('purchasing.orders.index') }}" class="btn btn-outline" style="border: none; padding: 0.5rem;">
+            <i class="fa fa-arrow-left"></i> Voltar para Pedidos
         </a>
     </div>
 
@@ -16,22 +15,22 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem;">
         
         <!-- Lado Esquerdo: Cabeçalho NF -->
-        <div class="lg:col-span-1 border-r border-slate-200 pr-0 lg:pr-6">
+        <div style="grid-column: span 1; padding-right: 1rem;">
             <form id="master-form" action="{{ route('purchasing.orders.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="items" id="items_payload" required>
 
-                <div class="card shadow-sm border-0 bg-white mb-6">
-                    <div class="card-header bg-slate-50 border-b border-slate-200">
-                        <h3 class="font-bold text-slate-700">1. Dados do Fornecedor</h3>
+                <div class="card mb-4">
+                    <div class="card-header bg-slate-50">
+                        <h3 class="font-bold text-primary">1. Dados do Fornecedor</h3>
                     </div>
                     <div class="card-body">
-                        <div class="form-group mb-4">
-                            <label class="text-sm font-semibold">Emitente / Fornecedor *</label>
-                            <select name="supplier_id" class="form-control w-full bg-slate-50" required>
+                        <div class="form-group">
+                            <label>Emitente / Fornecedor *</label>
+                            <select name="supplier_id" class="form-control" required>
                                 <option value="">-- Selecione o Favorecido --</option>
                                 @foreach($suppliers as $sup)
                                     <option value="{{ $sup->id }}">{{ $sup->company_name }} ({{ $sup->cnpj_cpf }})</option>
@@ -39,70 +38,73 @@
                             </select>
                         </div>
                         
-                        <div class="form-group mb-4">
-                            <label class="text-sm font-semibold">Número da Nota Fiscal (NF-e)</label>
-                            <input type="text" name="invoice_number" class="form-control w-full font-mono uppercase bg-slate-50" placeholder="Ex: 000.123.456-78">
+                        <div class="form-group">
+                            <label>Número da Nota Fiscal (NF-e)</label>
+                            <input type="text" name="invoice_number" class="form-control" style="font-family: monospace; text-transform: uppercase;" placeholder="Ex: 000.123.456-78">
                         </div>
 
-                        <div class="form-group mb-4">
-                            <label class="text-sm font-semibold">Observações / Romaneio</label>
-                            <textarea name="notes" class="form-control w-full h-20 bg-slate-50" placeholder="Ex: Entrega feita via transportadora XYZ faltou 1 volume."></textarea>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Observações / Romaneio</label>
+                            <textarea name="notes" class="form-control" style="min-height: 80px;" placeholder="Ex: Entrega feita via transportadora XYZ faltou 1 volume."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="card shadow-md border-2 border-indigo-100 bg-indigo-50/30">
-                    <div class="card-body py-6 text-center">
-                        <h3 class="text-sm font-bold text-indigo-800 uppercase tracking-wide mb-1">Total do Lote</h3>
-                        <div id="display-total" class="text-4xl font-black text-indigo-900 mb-4">R$ 0,00</div>
-                        <button type="button" onclick="submitCart()" class="btn btn-primary w-full py-3 bg-indigo-600 hover:bg-indigo-700 shadow-md transform hover:scale-[1.02] transition-transform text-white font-bold text-lg">
+                <div class="card" style="border: 2px solid #8e9ccf; background-color: #f8faff;">
+                    <div class="card-body" style="text-align: center; padding: 2rem 1.5rem;">
+                        <h3 style="font-size: 0.875rem; font-weight: bold; color: #455073; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Total do Lote</h3>
+                        <div id="display-total" style="font-size: 2.25rem; font-weight: 900; color: #2e3650; margin-bottom: 1.5rem;">R$ 0,00</div>
+                        <button type="button" onclick="submitCart()" class="btn btn-primary" style="width: 100%; padding: 0.875rem; font-size: 1.1rem; font-weight: bold;">
                             Arquivar Rascunho NF-e
                         </button>
-                        <p class="text-xs text-slate-500 mt-3 relative">Não altera estoque até o Recebimento ser validado.</p>
+                        <p class="text-light" style="font-size: 0.75rem; margin-top: 1rem;">Não altera estoque até o Recebimento ser validado.</p>
                     </div>
                 </div>
             </form>
         </div>
 
         <!-- Lado Direito: Scanner e Itens da Nota -->
-        <div class="lg:col-span-2">
-            <div class="bg-slate-800 rounded-xl shadow-inner p-6 mb-6 flex gap-4 items-center relative overflow-hidden">
-                <!-- Efeito Visual Laser Scanner -->
-                <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500 shadow-[0_0_15px_rgba(239,68,68,1)]"></div>
-                
-                <div class="flex-1">
-                    <label class="text-slate-300 text-xs font-bold uppercase tracking-wider mb-2 block">Bipar Produto (Cód. Barras)</label>
-                    <input type="text" id="scanner-input" class="w-full bg-slate-900 text-emerald-400 font-mono text-xl p-4 rounded-lg border-2 border-slate-700 focus:border-red-500 focus:ring-0 outline-none placeholder-slate-700 transition-colors" placeholder="Aguardando feixe laser..." autofocus onkeypress="handleScanner(event)">
-                </div>
-                
-                <div class="text-center mt-6">
-                    <span class="text-slate-500 block text-xs mb-2 font-bold">OU</span>
-                    <button type="button" onclick="document.getElementById('modal-search').showModal()" class="btn py-4 px-6 bg-slate-700 hover:bg-slate-600 text-white border-0 font-bold shadow-md rounded-lg flex items-center gap-2">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        Busca Teclado
-                    </button>
+        <div style="grid-column: span 2;">
+            <div class="card mb-4" style="background-color: #1e293b; color: white;">
+                <div class="card-body" style="display: flex; gap: 1rem; align-items: center; position: relative;">
+                    <!-- Efeito Visual Laser Scanner -->
+                    <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 1);"></div>
+                    
+                    <div style="flex: 1; padding-left: 10px;">
+                        <label style="color: #cbd5e1; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Bipar Produto (Cód. Barras)</label>
+                        <input type="text" id="scanner-input" style="width: 100%; background-color: #0f172a; color: #34d399; font-family: monospace; font-size: 1.25rem; padding: 1rem; border-radius: 8px; border: 2px solid #334155; outline: none; transition: border-color 0.2s;" placeholder="Aguardando feixe laser..." autofocus onkeypress="handleScanner(event)">
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <span style="color: #64748b; display: block; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.5rem;">OU</span>
+                        <button type="button" onclick="document.getElementById('modal-search').showModal()" class="btn" style="background-color: #334155; color: white; border: none; padding: 1rem 1.5rem; font-weight: bold; border-radius: 8px;">
+                            <i class="fa fa-keyboard"></i> Busca Teclado
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Tabela Vazia Ghost State -->
-            <div id="empty-cart-msg" class="text-center py-16 bg-white border border-dashed border-slate-300 rounded-xl">
-                <svg class="mx-auto w-16 h-16 text-slate-300 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                <h3 class="text-lg font-bold text-slate-400">Nenhum Volume Lançado</h3>
-                <p class="text-slate-400 text-sm mt-1">Bipe um código de barras para começar a empilhar.</p>
+            <div id="empty-cart-msg" class="card" style="border: 2px dashed #cbd5e1; box-shadow: none; display: block;">
+                <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
+                    <i class="fa fa-barcode" style="font-size: 4rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.125rem; font-weight: bold; color: #94a3b8;">Nenhum Volume Lançado</h3>
+                    <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.25rem;">Bipe um código de barras para começar a empilhar.</p>
+                </div>
             </div>
 
             <!-- Carrinho List -->
-            <div id="cart-table-wrapper" class="hidden">
-                <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-sm bg-white">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold">
+            <div id="cart-table-wrapper" style="display: none;">
+                <div class="card" style="overflow-x: auto;">
+                    <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                        <thead style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.75rem; text-transform: uppercase;">
                             <tr>
-                                <th class="p-4 w-10">Cx</th>
-                                <th class="p-4">SKU / Produto Ativo</th>
-                                <th class="p-4 w-32 text-center">Quantia</th>
-                                <th class="p-4 w-36 text-right">Novo Custo (R$)</th>
-                                <th class="p-4 w-32 text-right">Subtotal</th>
-                                <th class="p-4 w-16"></th>
+                                <th style="padding: 1rem; width: 40px;">Cx</th>
+                                <th style="padding: 1rem;">SKU / Produto Ativo</th>
+                                <th style="padding: 1rem; width: 120px; text-align: center;">Quantia</th>
+                                <th style="padding: 1rem; width: 140px; text-align: right;">Novo Custo (R$)</th>
+                                <th style="padding: 1rem; width: 120px; text-align: right;">Subtotal</th>
+                                <th style="padding: 1rem; width: 60px;"></th>
                             </tr>
                         </thead>
                         <tbody id="cart-body">
@@ -276,15 +278,15 @@
             const payload = document.getElementById('items_payload');
 
             if (cart.length === 0) {
-                wrapper.classList.add('hidden');
-                empty.classList.remove('hidden');
+                wrapper.style.display = 'none';
+                empty.style.display = 'block';
                 tTotal.innerText = 'R$ 0,00';
                 payload.value = '';
                 return;
             }
 
-            wrapper.classList.remove('hidden');
-            empty.classList.add('hidden');
+            wrapper.style.display = 'block';
+            empty.style.display = 'none';
 
             let totalCents = 0;
             let html = '';
@@ -294,27 +296,26 @@
                 totalCents += sub;
 
                 html += `
-                    <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                        <td class="p-4 text-slate-400 font-mono text-xs">
+                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
+                        <td style="padding: 1rem; color: #94a3b8; font-family: monospace; font-size: 0.75rem;">
                             ${(idx+1).toString().padStart(2, '0')}
                         </td>
-                        <td class="p-4">
-                            <span class="font-bold text-slate-800 block">${item.name}</span>
-                            <span class="text-xs text-slate-400 font-mono mt-0.5 inline-block">${item.barcode || item.sku}</span>
+                        <td style="padding: 1rem;">
+                            <span style="font-weight: bold; color: #1e293b; display: block;">${item.name}</span>
+                            <span style="font-size: 0.75rem; color: #94a3b8; font-family: monospace; margin-top: 2px; display: inline-block;">${item.barcode || item.sku}</span>
                         </td>
-                        <td class="p-4">
-                            <input type="number" min="1" value="${item.quantity}" onchange="checkNumericInput(event, ${idx}, 'quantity')" class="w-full text-center border border-slate-200 rounded py-2 outline-none focus:border-indigo-500 bg-white font-bold text-slate-700">
+                        <td style="padding: 1rem;">
+                            <input type="number" min="1" value="${item.quantity}" onchange="checkNumericInput(event, ${idx}, 'quantity')" class="form-control" style="text-align: center; font-weight: bold;">
                         </td>
-                        <td class="p-4">
-                            <input type="text" data-type="currency" value="${(item.unit_price_cents/100).toFixed(2)}" onchange="checkNumericInput(event, ${idx}, 'unit_price_cents')" class="w-full text-right border border-slate-200 rounded py-2 px-3 outline-none focus:border-indigo-500 bg-white font-semibold text-slate-700">
-                            <!-- Mascara JS inline simplificada -->
+                        <td style="padding: 1rem;">
+                            <input type="text" data-type="currency" value="${(item.unit_price_cents/100).toFixed(2)}" onchange="checkNumericInput(event, ${idx}, 'unit_price_cents')" class="form-control" style="text-align: right; font-weight: 600;">
                         </td>
-                        <td class="p-4 text-right font-black text-slate-800 bg-slate-50/30">
+                        <td style="padding: 1rem; text-align: right; font-weight: 900; color: #1e293b; background-color: #f8fafc;">
                             ${formatBRL(sub)}
                         </td>
-                        <td class="p-4 text-center">
-                            <button type="button" onclick="removeFromCart(${item.id})" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Excluir Lote">
-                                <svg w-24 h-24 width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <td style="padding: 1rem; text-align: center;">
+                            <button type="button" onclick="removeFromCart(${item.id})" style="color: #f87171; background: none; border: none; cursor: pointer;" title="Excluir Lote">
+                                <i class="fa fa-trash"></i>
                             </button>
                         </td>
                     </tr>

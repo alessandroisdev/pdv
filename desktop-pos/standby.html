@@ -54,12 +54,13 @@
                 let elem;
                 if (media.type === 'VIDEO') {
                     elem = document.createElement('video');
-                    elem.src = 'file://' + media.file_path; // Local File URI caching!! No Latency!
+                    elem.src = media.file_path; // O path já vem tratado com file:// ou http do backend electron
                     elem.muted = true; // Necessário para Autoplay 100%
-                    elem.loop = false; // Nós controlamos o playNext
+                    elem.loop = false; // Nós controlamos o lifecycle
+                    elem.preload = 'auto'; // Preload otimizado
                 } else {
                     elem = document.createElement('img');
-                    elem.src = 'file://' + media.file_path;
+                    elem.src = media.file_path;
                 }
                 
                 elem.className = 'media-slide';
@@ -68,7 +69,7 @@
 
                 if (media.type === 'VIDEO') {
                     elem.addEventListener('ended', () => {
-                        playNext(); // Quando video termina, avança logico ao invez de usar duration_seconds
+                        playNext(); // Quando o vídeo termina ele muda sozinho e por completo garantido
                     });
                 }
             });
@@ -77,8 +78,13 @@
         function playNext() {
             if (medias.length === 0) return;
             
-            // Remove active de todos
-            document.querySelectorAll('.media-slide').forEach(el => el.classList.remove('active'));
+            // Pausa vídeos anteriores para liberar recurso e remove o active effect do CSS em todos
+            document.querySelectorAll('.media-slide').forEach(el => {
+                el.classList.remove('active');
+                if (el.tagName === 'VIDEO') {
+                    el.pause();
+                }
+            });
 
             const currentMedia = medias[currentIndex];
             const currentElem = document.getElementById(`media-${currentIndex}`);
@@ -91,14 +97,15 @@
                 currentElem.currentTime = 0;
                 currentElem.play().catch(e => {
                     console.log('Autoplay prevent error?', e);
-                    slideTimeout = setTimeout(playNext, 5000); // Fallback
+                    slideTimeout = setTimeout(playNext, 5000); // Fallback em exception
                 });
             } else {
-                // Imagem Fade In aguarda N segundos nativos
-                slideTimeout = setTimeout(playNext, currentMedia.duration_seconds * 1000);
+                // Imagem Fade In aguarda a duração passada ou usa um padrão de slider predefinido de 15 segundos nativos
+                const durMs = (currentMedia.duration_seconds || 15) * 1000;
+                slideTimeout = setTimeout(playNext, durMs);
             }
 
-            // Move o indiciador para o prxímo circular
+            // Move o iterador para o próx (com rotatividade loop array pointer)
             currentIndex = (currentIndex + 1) % medias.length;
         }
 
