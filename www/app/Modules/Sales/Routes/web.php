@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Modules\Sales\Http\Controllers\CashRegisterController;
-
 use App\Modules\Sales\Http\Controllers\PointOfSaleController;
+use App\Modules\Sales\Http\Controllers\CatalogController;
 
 Route::middleware(['web', 'auth'])->prefix('vendas')->name('sales.')->group(function () {
     Route::get('/caixas', [CashRegisterController::class, 'index'])->name('cash_registers.index');
@@ -35,4 +35,10 @@ Route::middleware(['web'])->prefix('terminal')->name('terminal.')->group(functio
     Route::post('/movimento', [PointOfSaleController::class, 'cashMovement'])->name('pos.movement');
     Route::get('/fechar', [PointOfSaleController::class, 'closeShiftScreen'])->name('pos.close_screen');
     Route::post('/fechar', [PointOfSaleController::class, 'closeShift'])->name('pos.close');
+});
+
+// Catálogo / Cardápio Digital (Acesso Público Mobile / QRCode)
+Route::middleware(['web'])->prefix('catalogo')->name('catalog.')->group(function () {
+    Route::get('/', [CatalogController::class, 'index'])->name('index');
+    Route::post('/checkout', [CatalogController::class, 'checkout'])->name('checkout');
 });
