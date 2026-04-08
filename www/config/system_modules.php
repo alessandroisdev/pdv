@@ -19,5 +19,6 @@ return [
         'Sales',
         'Finance',
         'Settings',
+        'Fiscal',
     ],
 ];

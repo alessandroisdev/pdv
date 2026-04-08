@@ -12,10 +12,11 @@ RUN apk add --no-cache \
     sqlite-dev \
     oniguruma-dev \
     nodejs \
-    npm
+    npm \
+    libxml2-dev
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring pcntl bcmath gd zip mysqli pdo_sqlite
+RUN docker-php-ext-install pdo_mysql mbstring pcntl bcmath gd zip mysqli pdo_sqlite soap
 
 # Install Redis extension
 RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
