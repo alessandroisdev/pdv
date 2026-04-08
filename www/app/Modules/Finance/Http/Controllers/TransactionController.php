@@ -99,7 +99,7 @@ class TransactionController extends Controller
                     $tx->created_at->format('d/m/Y H:i:s'),
                     $tipoStr,
                     $tx->category ?? 'GERAL',
-                    $tx->description,
+                    $tx->description ?? '-',
                     $tx->payment_method ?? '-',
                     $valorStr,
                     $ator
