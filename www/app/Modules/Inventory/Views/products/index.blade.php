@@ -8,9 +8,9 @@
             <p class="text-light">Gerenciamento de Produtos, Variações e Categorias.</p>
         </div>
         <div class="flex" style="gap: 10px;">
-            <button class="btn btn-outline">
-                Gerenciar Categorias
-            </button>
+            <a href="{{ route('inventory.categories.index') }}" class="btn btn-outline">
+                <i class="fa fa-tags"></i> Gerenciar Categorias
+            </a>
             <a href="{{ route('inventory.products.create') }}" class="btn btn-primary">
                 <i class="fa fa-plus"></i> &nbsp; Novo Produto
             </a>

@@ -17,6 +17,9 @@ Route::middleware(['web', 'auth'])->prefix('estoque')->name('inventory.')->group
     Route::post('/produtos/{product}/estoque', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'store'])->name('products.stock.store');
     
     Route::get('/categorias', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categorias', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categorias/{id}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categorias/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     
     // Motor de Etiquetas (Labels)
     Route::get('/etiquetas', [LabelController::class, 'index'])->name('labels.index');
