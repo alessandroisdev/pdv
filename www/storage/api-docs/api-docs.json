@@ -1,20 +1,35 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Terminal PDV e ERP - API corporativa",
-        "description": "Documentação OpenApi para integração do ERP Curitiba Serviços. Endpoints cobrem RH, Vendas, Inventário e Financeiro.",
+        "title": "ERP Premium Enterprise SaaS API",
+        "description": "API robusta para o Ecossistema ERP B2B/B2C. \\n\\n**Novos Módulos Disponíveis:**\\n- `Motor Tributário & Fiscal` (Despacho assíncrono)\\n- `Estoque & WMS Avançado` (Regras de Curva ABC e Validade)\\n- `CRM Oportunidades` (Pipeline Kanban)\\n- `Controle Multi-Filial` (Isolamento nativo de Tenant)\\n- `Tesouraria DRE` & `Integração Motor Pagamentos (PIX)`\\n- `Real-Time Websockets` (Laravel Reverb)",
         "contact": {
-            "email": "suporte@curitibaservicos.com"
+            "email": "alessandro@gestaopdv.com"
         },
-        "version": "1.0.0"
+        "version": "2.0.0"
     },
     "servers": [
         {
             "url": "http://my-default-host.com",
-            "description": "Servidor Primário"
+            "description": "API Server"
         }
     ],
     "paths": {
+        "/financeiro/dashboard/data": {
+            "get": {
+                "tags": [
+                    "Financeiro"
+                ],
+                "summary": "Obter Dados do Dashboard",
+                "description": "Retorna as métricas agregadas do financeiro e os últimos alertas de auditoria.",
+                "operationId": "4965abdd55dcee5a78c7943d150f227d",
+                "responses": {
+                    "200": {
+                        "description": "Métricas JSON"
+                    }
+                }
+            }
+        },
         "/api/finance/transactions": {
             "get": {
                 "tags": [
@@ -119,9 +134,140 @@
                     }
                 }
             }
+        },
+        "/api/purchasing/suppliers": {
+            "get": {
+                "tags": [
+                    "Gestão de Fornecedores"
+                ],
+                "summary": "Listar Fornecedores",
+                "description": "Obtém lista de fornecedores.",
+                "operationId": "3edcfbee4f974cbe606c1f9d6e9f8718",
+                "responses": {
+                    "200": {
+                        "description": "Lista carregada"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Gestão de Fornecedores"
+                ],
+                "summary": "Criar Fornecedor",
+                "operationId": "17fc94b7aecc8d06909eea2270000d40",
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/v1/omnichannel/checkout": {
+            "post": {
+                "tags": [
+                    "Omnichannel & Delivery"
+                ],
+                "summary": "Processa Venda via App Externo/Delivery",
+                "description": "Recebe o array de produtos de um App Mobile React Native e processa direto na Frente de Caixa, exigindo integração transparente.",
+                "operationId": "b16dabeae5c2dd9aba9ffa4228e199e8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "customer_document": {
+                                        "description": "CPF do Consumidor",
+                                        "type": "string"
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "enum": [
+                                            "PIX",
+                                            "CREDIT_CARD"
+                                        ]
+                                    },
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Venda Processada com Sucesso pela Matriz"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/settings": {
+            "post": {
+                "tags": [
+                    "Configurações Core"
+                ],
+                "summary": "Salvar configurações em Lote",
+                "description": "Salva configurações de loja ou sistema mapeando payload (key/value).",
+                "operationId": "83ace8fa0d4124b1ae50d28535444a90",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "settings": {
+                                        "type": "object",
+                                        "example": {
+                                            "store_name": "Minha Loja",
+                                            "cnpj": "1234"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configurações Atualizadas e Cache Limpo"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
         }
     },
     "tags": [
+        {
+            "name": "Financeiro",
+            "description": "Operações Financeiras, Tesouraria e Dashboard Analytics"
+        },
         {
             "name": "Gestão Financeira",
             "description": "Operações de Caixa, Extratos e Exportações"
@@ -129,6 +275,18 @@
         {
             "name": "Recursos Humanos",
             "description": "Gerenciamento da Equipe e Colaboradores (CRUD & Exportação)"
+        },
+        {
+            "name": "Gestão de Fornecedores",
+            "description": "Operações de CRUD de parceiros do Supply Chain"
+        },
+        {
+            "name": "Configurações Core",
+            "description": "Endpoints de configuração Mestra, Variáveis de Loja, NFC-e e Tema"
+        },
+        {
+            "name": "Omnichannel & Delivery",
+            "description": "Omnichannel & Delivery"
         }
     ]
 }

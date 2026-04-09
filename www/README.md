@@ -1,58 +1,33 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚀 ERP Premium Enterprise SaaS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este sistema é um poderoso ERP, CRM e PDV Multi-Filial de alta performance. Desenvolvido para escalar, suportar milhares de requisições simultâneas e governança de ponta.
 
-## About Laravel
+## 🌟 Arquitetura e Módulos Principais
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Construímos um autêntico colosso corporativo usando os melhores design patterns:
+- **Assíncrono (Rabbit/Redis):** Integrado via `laravel/horizon`. Toda a pesada camada de Emissão Fiscal (`ProcessFiscalDocumentDispatch`) flui sem travar a interface do usuário.
+- **Websockets Real-Time:** Motor acionado por `Laravel Reverb`. Fila do caixa e retaguarda conversam bidirecionalmente sem depender de Reloads ou F5.
+- **Multi-Branch (Tenant by Branch):** Banco de dados inteligente que através de um *Global Scope* (`HasBranchScope`) separa o contexto da Filial A da Filial B nativamente, isolando Vendas, Estoque, Clientes e Caixas.
+- **Motor Tributário Independente:** A tabela `tax_rules` substituiu as alíquotas limitadas antigas. Regras estritas por NCM/ICMS dinâmicas.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📦 Extensões de Negócio
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Inteligência Logística (WMS):** Rastreabilidade de validades de Lote, interligada ao *ProcurementService*. A Cron avalia a Curva ABC de vendas (últimos 30 dias) e dispara alertas se o estoque vai secar por velocidade de venda.
+2. **CRM Avançado (B2B Pipelines):** Um Kanban Visual Drag & Drop maravilhoso onde os diretores arrastam *Opportunities* entre fases para acompanhar as Vendas de Grande Porte.
+3. **Controladoria e DRE Financeiro (Fase 4):** Lançamentos classificados nativamente. Painel gerencial que calcula EBITDA isolando Custos Fixos (OPEX) do Custo da Mercadoria (CPV) baseado em regime de caixa.
+4. **Portal do Cliente B2B/B2C (Self-Service):** Seus clientes acessam a Rota Web Segura, listam as próprias Faturas e emitem o PIX sem auxílio técnico!
+5. **Integração de PIX (Engine Strategy):** Padrão de Gateway agnóstico. Hoje plugado no `MockAsaasGateway` construindo QRCodes reais instantaneamente na tela do cliente final via AJAX!
 
-## Learning Laravel
+## 🔐 Segurança Nativa (RBAC)
+Todo acesso gerencial é fiscalizado por `Laravel Gates`. Módulos `Finance` e `Settings` possuem fechaduras blindades baseadas nos cargos Super Admin e Gestores - um vendedor de PDV não pode farejar a DRE.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+## 🚀 Como iniciar
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+php artisan migrate --seed
+php artisan reverb:start
+php artisan horizon
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Desenvolvido para ser Implacável, Escalável e Lucrativo.

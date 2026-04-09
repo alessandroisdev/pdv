@@ -70,7 +70,7 @@
                             </div>
                         </div>
                         <div class="bg-slate-50 p-4 border-t border-slate-100 flex gap-2">
-                            <button onclick="alert('Funcionalidade de Copia e Cola Pagar via PIX chegará na próxima versão!')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded text-sm text-center transition-colors">
+                            <button onclick="requestPix({{ $inst->id }})" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded text-sm text-center transition-colors">
                                 <i class="fa fa-qrcode"></i> Pagar via PIX
                             </button>
                             <button onclick="alert('Download do PDF do Boleto estará disponível em breve.')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded text-sm text-center transition-colors">
@@ -81,8 +81,63 @@
                 @endforeach
             </div>
         @endif
-
     </main>
+
+    <!-- Modal do PIX -->
+    <div id="pix-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 text-center">
+            <h3 class="text-xl font-bold text-slate-800 mb-2"><i class="fa fa-qrcode text-emerald-500"></i> Pagamento Instantâneo</h3>
+            <p class="text-sm text-slate-500 mb-6" id="pix-instruction">Escaneie o QR Code ou utilize o PIX Copia e Cola para pagar o valor de <strong id="pix-amount">R$ 0,00</strong>.</p>
+            
+            <div class="bg-slate-100 border border-slate-200 rounded-lg p-4 mb-6 flex justify-center items-center h-48">
+                <!-- Simula QR Code visual -->
+                <i class="fa fa-qrcode text-8xl text-slate-400"></i>
+            </div>
+            
+            <label class="block text-left text-xs font-bold text-slate-700 mb-1">PIX Copia e Cola:</label>
+            <div class="flex border border-slate-300 rounded mb-6 overflow-hidden">
+                <input type="text" id="pix-payload-input" readonly class="flex-1 px-3 py-2 text-sm text-slate-600 bg-slate-50 focus:outline-none">
+                <button onclick="copyPix()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 transition-colors"><i class="fa fa-copy"></i> Copiar</button>
+            </div>
+            
+            <button onclick="document.getElementById('pix-modal').classList.add('hidden')" class="w-full text-slate-500 hover:text-slate-800 font-bold py-2">
+                Fechar Janela
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function requestPix(id) {
+            fetch(`/portal/installments/${id}/pix`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.error) {
+                    alert('Erro: ' + data.error);
+                } else {
+                    document.getElementById('pix-amount').innerText = 'R$ ' + data.amount_brl;
+                    document.getElementById('pix-payload-input').value = data.pix_payload;
+                    document.getElementById('pix-modal').classList.remove('hidden');
+                }
+            })
+            .catch(err => {
+                alert('Ocorreu um erro na comunicação com o Banco/Gateway.');
+            });
+        }
+
+        function copyPix() {
+            var copyText = document.getElementById("pix-payload-input");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("Código PIX copiado para a área de transferência!");
+        }
+    </script>
 
 </body>
 </html>

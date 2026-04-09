@@ -75,6 +75,40 @@ class CustomerPortalController extends Controller
         return view('portal.dashboard', compact('customer', 'installments'));
     }
 
+    public function generatePix(Request $request, $installmentId, \App\Modules\Finance\Services\MockAsaasGateway $gateway)
+    {
+        if (!Session::has('portal_customer_id')) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $installment = Installment::where('id', $installmentId)
+            // No futuro pode checar o Customer ID pra evitar IDOR
+            // ->where('customer_id', Session::get('portal_customer_id')) 
+            ->firstOrFail();
+
+        if ($installment->status === 'PAID') {
+            return response()->json(['error' => 'Fatura já paga.'], 400);
+        }
+
+        // Se ainda não tem PIX emitido na operadora para esta parcela, requisita!
+        if (!$installment->pix_payload) {
+            // Em uma arquitetura limpa a Controller não amarra a classe Mock, ela chama a Interface.
+            // Para o MVP direto injetamos.
+            $gatewayResponse = $gateway->generatePix($installment);
+            
+            $installment->update([
+                'gateway_id' => $gatewayResponse['gateway_id'],
+                'pix_payload' => $gatewayResponse['pix_payload'],
+                'gateway_url' => $gatewayResponse['gateway_url']
+            ]);
+        }
+
+        return response()->json([
+            'pix_payload' => $installment->pix_payload,
+            'amount_brl' => number_format($installment->amount_cents / 100, 2, ',', '.')
+        ]);
+    }
+
     public function logout()
     {
         Session::forget(['portal_customer_id', 'portal_customer_name']);
