@@ -1,0 +1,30 @@
+{
+  "name": "debras-enterprise-pos",
+  "version": "1.0.0",
+  "description": "Frente de Caixa Nativa Offline-First",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "author": "Debras Engineering",
+  "license": "ISC",
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.debras.pos",
+    "productName": "Debras PDV",
+    "win": {
+      "target": ["portable", "nsis"]
+    },
+    "linux": {
+      "target": ["AppImage"]
+    }
+  }
+}

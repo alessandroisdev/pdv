@@ -15,6 +15,148 @@
         }
     ],
     "paths": {
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Autenticação API"
+                ],
+                "summary": "Autentica e emite Token Sanctum Offline",
+                "description": "Gera o tokenBearer que o App Desktop/Mobile usará para manter sessão.",
+                "operationId": "apiLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@gestaopdv.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Acesso concedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string"
+                                        },
+                                        "user_name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciais Inválidas"
+                    }
+                }
+            }
+        },
+        "/api/v1/pos/products": {
+            "get": {
+                "tags": [
+                    "Integração PDV Electron"
+                ],
+                "summary": "Carga Inicial de Tabela de Produtos (Sync)",
+                "description": "Lista todos os produtos ativos para salvar no cache local (IndexedDB) do app Electron Offline.",
+                "operationId": "apiProducts",
+                "responses": {
+                    "200": {
+                        "description": "Array de Produtos e Tabelas Auxiliares"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pos/sync-sales": {
+            "post": {
+                "tags": [
+                    "Integração PDV Electron"
+                ],
+                "summary": "Despejo em Lote de Vendas Offline (Push)",
+                "description": "Recebe um Array JSON com N vendas que ocorreram no App Desktop durante o dia (Quando sem internet, empurra em massa).",
+                "operationId": "apiSyncSales",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "sales": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "local_id": {
+                                                    "type": "string"
+                                                },
+                                                "total_cents": {
+                                                    "type": "integer"
+                                                },
+                                                "payment_method": {
+                                                    "type": "string"
+                                                },
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "product_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "qty": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sincronização OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/financeiro/dashboard/data": {
             "get": {
                 "tags": [
@@ -283,6 +425,14 @@
         {
             "name": "Configurações Core",
             "description": "Endpoints de configuração Mestra, Variáveis de Loja, NFC-e e Tema"
+        },
+        {
+            "name": "Autenticação API",
+            "description": "Autenticação API"
+        },
+        {
+            "name": "Integração PDV Electron",
+            "description": "Integração PDV Electron"
         },
         {
             "name": "Omnichannel & Delivery",
