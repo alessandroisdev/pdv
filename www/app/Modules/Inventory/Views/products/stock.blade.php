@@ -99,7 +99,7 @@
                                             {{ $mov->created_at ? $mov->created_at->format('d/m/Y H:i') : '--' }}
                                         </td>
                                         <td style="padding: 1rem;">
-                                            @if($mov->type === 'MANUAL_ADJUSTMENT')
+                                            @if($mov->type === 'ADJUSTMENT')
                                                 <span style="font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: #e0e7ff; color: #4f46e5;">AJUSTE GERENCIAL</span>
                                             @elseif($mov->type === 'SALE')
                                                 <span style="font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: #fef08a; color: #854d0e;">FRENTE CAIXA PDV</span>
