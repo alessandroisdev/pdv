@@ -75,7 +75,7 @@ class CustomerPortalController extends Controller
         return view('portal.dashboard', compact('customer', 'installments'));
     }
 
-    public function generatePix(Request $request, $installmentId, \App\Modules\Finance\Services\MockAsaasGateway $gateway)
+    public function generatePix(Request $request, $installmentId, \App\Modules\Finance\Contracts\PaymentGatewayInterface $gateway)
     {
         if (!Session::has('portal_customer_id')) {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -105,6 +105,7 @@ class CustomerPortalController extends Controller
 
         return response()->json([
             'pix_payload' => $installment->pix_payload,
+            'gateway_url' => $installment->gateway_url,
             'amount_brl' => number_format($installment->amount_cents / 100, 2, ',', '.')
         ]);
     }

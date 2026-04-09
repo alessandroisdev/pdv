@@ -89,9 +89,10 @@
             <h3 class="text-xl font-bold text-slate-800 mb-2"><i class="fa fa-qrcode text-emerald-500"></i> Pagamento Instantâneo</h3>
             <p class="text-sm text-slate-500 mb-6" id="pix-instruction">Escaneie o QR Code ou utilize o PIX Copia e Cola para pagar o valor de <strong id="pix-amount">R$ 0,00</strong>.</p>
             
-            <div class="bg-slate-100 border border-slate-200 rounded-lg p-4 mb-6 flex justify-center items-center h-48">
+            <div class="bg-slate-100 border border-slate-200 rounded-lg p-4 mb-6 flex justify-center items-center h-48" id="qrcode-container">
                 <!-- Simula QR Code visual -->
-                <i class="fa fa-qrcode text-8xl text-slate-400"></i>
+                <i class="fa fa-qrcode text-8xl text-slate-400" id="qrcode-mock-icon"></i>
+                <img id="qrcode-image" class="hidden h-full w-full object-contain" src="" alt="QR Code PIX">
             </div>
             
             <label class="block text-left text-xs font-bold text-slate-700 mb-1">PIX Copia e Cola:</label>
@@ -122,6 +123,14 @@
                 } else {
                     document.getElementById('pix-amount').innerText = 'R$ ' + data.amount_brl;
                     document.getElementById('pix-payload-input').value = data.pix_payload;
+
+                    if (data.gateway_url && data.gateway_url.startsWith('data:image')) {
+                         document.getElementById('qrcode-mock-icon').classList.add('hidden');
+                         const img = document.getElementById('qrcode-image');
+                         img.src = data.gateway_url;
+                         img.classList.remove('hidden');
+                    }
+
                     document.getElementById('pix-modal').classList.remove('hidden');
                 }
             })

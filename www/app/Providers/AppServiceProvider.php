@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Modules\Finance\Contracts\PaymentGatewayInterface;
+use App\Modules\Finance\Services\MockAsaasGateway;
+use App\Modules\Finance\Services\RealAsaasGateway;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,6 +15,14 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         require_once __DIR__ . '/../helpers.php';
+
+        // Trava de Fallback de Produção Asaas
+        $this->app->bind(PaymentGatewayInterface::class, function ($app) {
+            if (config('services.asaas.token') === '' || config('services.asaas.token') === null) {
+                return new MockAsaasGateway();
+            }
+            return new RealAsaasGateway();
+        });
     }
 
     /**

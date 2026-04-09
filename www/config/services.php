@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'asaas' => [
+        'url' => env('ASAAS_API_URL', 'https://sandbox.asaas.com/api/v3'),
+        'token' => env('ASAAS_API_TOKEN', ''),
+    ],
+
 ];
