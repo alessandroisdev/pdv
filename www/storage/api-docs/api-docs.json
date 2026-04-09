@@ -20,8 +20,8 @@
                 "tags": [
                     "Autenticação API"
                 ],
-                "summary": "Autentica e emite Token Sanctum Offline",
-                "description": "Gera o tokenBearer que o App Desktop/Mobile usará para manter sessão.",
+                "summary": "Autentica operador por PIN",
+                "description": "Gera o tokenBearer Sanctum baseado no PIN do Empregado (Cashier Number).",
                 "operationId": "apiLogin",
                 "requestBody": {
                     "required": true,
@@ -29,19 +29,12 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "email",
-                                    "password"
+                                    "pin"
                                 ],
                                 "properties": {
-                                    "email": {
+                                    "pin": {
                                         "type": "string",
-                                        "format": "email",
-                                        "example": "admin@gestaopdv.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password"
+                                        "example": "2222"
                                     }
                                 },
                                 "type": "object"
@@ -51,25 +44,10 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Acesso concedido",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "token": {
-                                            "type": "string"
-                                        },
-                                        "user_name": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Acesso concedido"
                     },
                     "401": {
-                        "description": "Credenciais Inválidas"
+                        "description": "PIN Inválido"
                     }
                 }
             }

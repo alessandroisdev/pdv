@@ -218,10 +218,16 @@ const PosApp = {
 
         // Integração IPC com Impressora Térmica OS
         if (window.pdvAPI) {
-            window.pdvAPI.printReceipt({ id: saleRecord.local_id, total: total_cents });
+            window.pdvAPI.printReceipt({ 
+                id: saleRecord.local_id, 
+                total: total_cents,
+                method: method,
+                operator: this.state.user ? this.state.user.user_name : 'CAIXA Padrão',
+                items: this.state.cart.map(c => ({ name: c.name, qty: c.qty, price_cents_sale: c.price_cents_sale }))
+            });
         }
 
-        this.showToast('Venda Finalizada! (Gaveta Aberta)');
+        this.showToast('Venda Finalizada! (Gaveta Aberta e Cupom Impresso)');
 
         // Tenta sincronizar silenciosamente se tiver net
         if (navigator.onLine) setTimeout(() => this.syncWithCloud(), 1500);
