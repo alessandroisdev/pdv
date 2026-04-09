@@ -97,8 +97,8 @@ class CatalogController extends Controller
 
             SaleItem::insert($itemsToInsert);
 
-            // A trigger de Websocket poderia ser chamada aqui para avisar o Backoffice RealTime (Laravel Reverb)
-            // event(new \App\Events\NewOmnichannelOrder($sale));
+            // A trigger de Websocket avisa o Backoffice RealTime (Laravel Reverb)
+            event(new \App\Events\NewOmnichannelOrder($sale));
 
             DB::commit();
 
