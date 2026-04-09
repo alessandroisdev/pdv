@@ -50,23 +50,37 @@ const PosApp = {
         setTimeout(() => toast.style.opacity = '0', 3000);
     },
 
+    typePin(num) {
+        const input = document.getElementById('login-pin');
+        const display = document.getElementById('pin-display');
+        if(input.value.length < 6) {
+            input.value += num;
+            display.innerText = '•'.repeat(input.value.length);
+        }
+    },
+
+    clearPin() {
+        document.getElementById('login-pin').value = '';
+        document.getElementById('pin-display').innerText = '';
+    },
+
     async authenticate() {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-password').value;
+        const pin = document.getElementById('login-pin').value;
         const errEl = document.getElementById('login-error');
+
+        if(pin.length === 0) return;
 
         try {
             const res = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email: email, password: pass, device_name: 'CAIXA_DESKTOP_1' })
+                body: JSON.stringify({ pin: pin, device_name: 'CAIXA_DESKTOP_1' })
             });
 
-            if (!res.ok) throw new Error('Falha no Login');
+            if (!res.ok) throw new Error('PIN não reconhecido');
 
             const data = await res.json();
             
-            // Grava Credenciais de Bateria Longa no Cache
             this.state.token = data.token;
             this.state.user = data;
             
@@ -77,6 +91,7 @@ const PosApp = {
             
         } catch (e) {
             errEl.style.display = 'block';
+            this.clearPin();
         }
     },
 
