@@ -26,8 +26,11 @@
                             <button type="button" onclick="switchTab('fiscal')" id="tab-btn-fiscal" class="tab-btn" style="padding: 1.25rem 1.5rem; text-align: left; background: white; border: none; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; transition: background 0.2s;">
                                 <i class="fa fa-file-invoice-dollar" style="font-size: 1.125rem;"></i> Dados Fiscais (NFC-e)
                             </button>
-                            <button type="button" onclick="switchTab('pos')" id="tab-btn-pos" class="tab-btn" style="padding: 1.25rem 1.5rem; text-align: left; background: white; border: none; border-left: 4px solid transparent; border-bottom: 1px solid transparent; color: #475569; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; transition: background 0.2s;">
+                            <button type="button" onclick="switchTab('pos')" id="tab-btn-pos" class="tab-btn" style="padding: 1.25rem 1.5rem; text-align: left; background: white; border: none; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; transition: background 0.2s;">
                                 <i class="fa fa-desktop" style="font-size: 1.125rem;"></i> Hardware PDV & Recibos
+                            </button>
+                            <button type="button" onclick="switchTab('system')" id="tab-btn-system" class="tab-btn" style="padding: 1.25rem 1.5rem; text-align: left; background: white; border: none; border-left: 4px solid transparent; border-bottom: 1px solid transparent; color: #475569; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; transition: background 0.2s;">
+                                <i class="fa fa-shield-alt" style="font-size: 1.125rem;"></i> Segurança & Módulos Extras
                             </button>
                         </nav>
                     </div>
@@ -155,6 +158,49 @@
                                     </div>
                                     <div id="printer-result" style="display: none; padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-family: monospace; border: 1px solid #e2e8f0;"></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: SYSTEM -->
+                        <div id="tab-content-system" class="tab-content" style="display: none; padding: 2rem;">
+                            <h3 style="font-size: 1.25rem; font-weight: bold; color: #1e293b; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">Módulos Extensivos</h3>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <a href="{{ route('settings.users.index') }}" class="btn shadow-sm" style="display:flex; flex-direction:column; align-items:center;  padding:2rem; background:white; border:1px solid #e2e8f0; border-radius:0.75rem; text-align:center; text-decoration:none; color:#1e293b;">
+                                    <i class="fa fa-users" style="font-size:2rem; color:#4f46e5; margin-bottom:1rem;"></i>
+                                    <h4 style="font-size:1rem; font-weight:bold; margin:0;">Usuários e Papéis</h4>
+                                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#64748b;">Administre acessos do ERP</p>
+                                </a>
+                                
+                                <a href="{{ route('audit.index') }}" class="btn shadow-sm" style="display:flex; flex-direction:column; align-items:center;  padding:2rem; background:white; border:1px solid #e2e8f0; border-radius:0.75rem; text-align:center; text-decoration:none; color:#1e293b;">
+                                    <i class="fa fa-shield-check" style="font-size:2rem; color:#f59e0b; margin-bottom:1rem;"></i>
+                                    <h4 style="font-size:1rem; font-weight:bold; margin:0;">Logs de Auditoria</h4>
+                                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#64748b;">Rastro de atividades</p>
+                                </a>
+                                
+                                <a href="{{ route('fiscal.records.index') }}" class="btn shadow-sm" style="display:flex; flex-direction:column; align-items:center;  padding:2rem; background:white; border:1px solid #e2e8f0; border-radius:0.75rem; text-align:center; text-decoration:none; color:#1e293b;">
+                                    <i class="fa fa-file-invoice" style="font-size:2rem; color:#10b981; margin-bottom:1rem;"></i>
+                                    <h4 style="font-size:1rem; font-weight:bold; margin:0;">Repositório XML (NF)</h4>
+                                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#64748b;">Histórico Sefaz e Danfes</p>
+                                </a>
+
+                                <a href="{{ route('fiscal.sandbox') }}" class="btn shadow-sm" style="display:flex; flex-direction:column; align-items:center;  padding:2rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:0.75rem; text-align:center; text-decoration:none; color:#1e293b;">
+                                    <i class="fa fa-vial" style="font-size:2rem; color:#22c55e; margin-bottom:1rem;"></i>
+                                    <h4 style="font-size:1rem; font-weight:bold; margin:0;">Lab Fiscal</h4>
+                                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#64748b;">Simulador NFC-e isolado</p>
+                                </a>
+
+                                <a href="{{ route('settings.standby.index') }}" class="btn shadow-sm" style="display:flex; flex-direction:column; align-items:center;  padding:2rem; background:white; border:1px solid #e2e8f0; border-radius:0.75rem; text-align:center; text-decoration:none; color:#1e293b;">
+                                    <i class="fa fa-tv" style="font-size:2rem; color:#ec4899; margin-bottom:1rem;"></i>
+                                    <h4 style="font-size:1rem; font-weight:bold; margin:0;">Mídias de Caixa</h4>
+                                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#64748b;">Varejo em Standby Visual</p>
+                                </a>
+
+                                <a href="{{ route('core.help.index') }}" class="btn shadow-sm" style="display:flex; flex-direction:column; align-items:center;  padding:2rem; background:white; border:1px solid #e2e8f0; border-radius:0.75rem; text-align:center; text-decoration:none; color:#1e293b;">
+                                    <i class="fa fa-book-open" style="font-size:2rem; color:#3b82f6; margin-bottom:1rem;"></i>
+                                    <h4 style="font-size:1rem; font-weight:bold; margin:0;">Manuais Básicos</h4>
+                                    <p style="font-size:0.75rem; margin-top:0.5rem; color:#64748b;">Acesso ao FAQ Oficial</p>
+                                </a>
                             </div>
                         </div>
 

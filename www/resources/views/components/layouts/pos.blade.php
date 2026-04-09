@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <title>Terminal PDV | Caixa Livre</title>
     <!-- Entrada Modular Exclusiva do POS (Sem estilos do painel Admin) -->
-    @vite(['resources/scss/pos.scss', 'resources/ts/pos.ts'])
+    @vite(['resources/scss/pos.scss'])
     <!-- Robust fallback / Universal Setup for SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>

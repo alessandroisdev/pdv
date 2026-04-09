@@ -5,11 +5,14 @@
             <p class="text-light" style="margin-top: 0.25rem;">Visão Analítica de Receitas, Despesas e Monitoramento de Risco</p>
         </div>
         <div class="flex gap-2">
-            <a href="/api/documentation" target="_blank" class="btn btn-outline" style="background-color: white;">
-                <i class="fa fa-book"></i> API Swagger Docs
+            <a href="{{ route('finance.installments.index') }}" class="btn btn-outline" style="background-color: white; border-color:#e2e8f0; color:#334155;">
+                <i class="fa fa-file-invoice-dollar"></i> Pagar / Receber
             </a>
-            <a href="{{ route('finance.transactions.export') }}" class="btn btn-primary" style="background: #10b981; border-color: #10b981;">
-                <i class="fa fa-file-excel"></i> Exportar Relatório
+            <a href="{{ route('finance.reports.index') }}" class="btn btn-outline" style="background-color: #f8fafc; border-color:#cbd5e1; color:#0f172a;">
+                <i class="fa fa-chart-pie"></i> DRE & Relatórios
+            </a>
+            <a href="{{ route('finance.transactions.export') }}" class="btn btn-primary" style="background: #10b981; border-color: #10b981; color:white; font-weight:bold;">
+                <i class="fa fa-file-excel"></i> CSV Export
             </a>
         </div>
     </div>
@@ -102,17 +105,17 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'],
+                    labels: {!! json_encode($chartData['labels']) !!},
                     datasets: [
                         {
                             label: 'Receitas (Entradas)',
-                            data: [12000, 19000, 15000, 22000, 28000, 35000, 11000],
+                            data: {!! json_encode($chartData['income']) !!},
                             backgroundColor: 'rgba(16, 185, 129, 0.8)',
                             borderRadius: 4
                         },
                         {
                             label: 'Despesas (Saídas)',
-                            data: [5000, 4000, 8000, 6000, 15000, 12000, 2000],
+                            data: {!! json_encode($chartData['expense']) !!},
                             backgroundColor: 'rgba(244, 63, 94, 0.8)',
                             borderRadius: 4
                         }

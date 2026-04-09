@@ -58,6 +58,25 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('finance::dashboard', compact('metrics', 'criticalAudits'));
+        // Gráfico de Fluxo de Caixa Diário (Últimos 7 dias reais do banco)
+        $last7Days = collect();
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::today()->subDays($i);
+            $inc = Transaction::where('type', 'INCOME')->whereDate('created_at', $date)->sum('amount_cents');
+            $exp = Transaction::where('type', 'EXPENSE')->whereDate('created_at', $date)->sum('amount_cents');
+            $last7Days->push([
+                'date' => $date->format('d/m'),
+                'income' => $inc / 100,
+                'expense' => $exp / 100
+            ]);
+        }
+        
+        $chartData = [
+            'labels' => $last7Days->pluck('date')->toArray(),
+            'income' => $last7Days->pluck('income')->toArray(),
+            'expense' => $last7Days->pluck('expense')->toArray()
+        ];
+
+        return view('finance::dashboard', compact('metrics', 'criticalAudits', 'chartData'));
     }
 }

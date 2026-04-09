@@ -203,6 +203,38 @@
         </form>
     </dialog>
 
+    <!-- Modal de Revisão de Compra e Troco -->
+    <dialog id="checkout-review-modal" style="padding: 0; border: none; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); width: 450px; max-width: 90vw;">
+        <div style="padding: 1.5rem; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.1); display:flex; justify-content: space-between; align-items:center;">
+            <h3 style="margin:0; font-size: 1.25rem; color: #f8fafc; font-weight:700;">Revisão de Pagamento 🧾</h3>
+            <button type="button" onclick="document.getElementById('checkout-review-modal').close()" style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+        </div>
+        <div style="padding: 1.5rem; background:#f8fafc;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 1rem; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1rem;">
+                <span style="color:#64748b; font-weight:600; font-size:1.1rem;">Meio Físico: <span id="review-method" style="color:#2563eb;"></span></span>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 1.5rem;">
+                <span style="color:#475569; font-weight:700; font-size:1.2rem;">Total da Compra</span>
+                <span id="review-total" style="font-size:2rem; font-weight:800; color:#0f172a;">R$ 0,00</span>
+            </div>
+
+            <div id="review-cash-section" style="display:none; background: #e0f2fe; border: 1px solid #bae6fd; padding:1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <label style="display:block; font-size: 0.9rem; font-weight:700; color:#0369a1; margin-bottom:0.5rem;">Valor Entregue pelo Cliente (R$)</label>
+                <input type="number" step="0.01" id="review-received" style="width: 100%; padding: 1rem; border:2px solid #38bdf8; border-radius:8px; font-size:1.5rem; font-weight:bold; color:#0f172a; outline:none; text-align:right;">
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 1rem;">
+                    <span style="color:#0284c7; font-weight:700; font-size:1.1rem;">Troco</span>
+                    <span id="review-change" style="font-size:1.5rem; font-weight:900; color:#059669;">R$ 0,00</span>
+                </div>
+            </div>
+
+            <button type="button" class="btn" style="width:100%; padding: 1.25rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; font-size:1.2rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 6px -1px rgba(16,185,129,0.3);" onclick="PosApp.confirmCheckoutFinal()">
+                Efetivar & Imprimir ✅
+            </button>
+        </div>
+    </dialog>
+
     <!-- Rota do prefixPath nativo p javascript dinâmico -->
     <script>window.POS_PREFIX_PATH = "{{ $prefixPath }}";</script>
 
@@ -286,27 +318,41 @@
 
             processBarcode(code) {
                 if(!code) return;
-                // Find in catalog
-                const card = document.querySelector(`.catalog-item[data-barcode="${code}"]`);
+
+                let searchCode = code.trim();
+                let quantityToAdd = 1;
+
+                // Captura regex perfeita para o formato: "5*12345" ou "10*SKU99"
+                const match = searchCode.match(/^(\d+)\s*\*\s*(.+)$/);
+                if (match) {
+                    quantityToAdd = parseInt(match[1], 10);
+                    searchCode = match[2];
+                }
+
+                // Match dynamically
+                const card = document.querySelector(`.catalog-item[data-barcode="${searchCode}"]`) || 
+                             document.querySelector(`.catalog-item[data-id="${searchCode}"]`);
+                
                 if (card) {
                     this.addToCart(
                         parseInt(card.dataset.id), 
                         card.dataset.name, 
                         parseInt(card.dataset.price),
-                        card.dataset.clubPrice ? parseInt(card.dataset.clubPrice) : null
+                        card.dataset.clubPrice ? parseInt(card.dataset.clubPrice) : null,
+                        quantityToAdd
                     );
                 } else {
-                    if (window.toast) window.toast.fire({ icon: 'error', title: 'Código não encontrado no catálogo!' });
-                    else alert('Código não encontrado!');
+                    if (window.toast) window.toast.fire({ icon: 'error', title: 'Produto/Código não encontrado!' });
+                    else alert(`Falha: ${searchCode} não foi localizado no Catálogo Interno.`);
                 }
             },
 
-            addToCart(id, name, priceCents, clubPriceCents) {
+            addToCart(id, name, priceCents, clubPriceCents, qtyToAdd = 1) {
                 const existing = this.cart.find(i => i.id === id);
                 if (existing) {
-                    existing.quantity++;
+                    existing.quantity += qtyToAdd;
                 } else {
-                    this.cart.unshift({ id, name, originalPriceCents: priceCents, clubPriceCents, quantity: 1 }); // unshift to put on top of bill
+                    this.cart.unshift({ id, name, originalPriceCents: priceCents, clubPriceCents, quantity: qtyToAdd }); // unshift to put on top of bill
                 }
                 this.render();
             },
@@ -345,11 +391,51 @@
                     return;
                 }
                 
-                // Final Check do Doc Field - se ele digitou e não apertou enter, forçamos assumir
+                // Em vez de enviar o formulário passivamente, abortamos para exibir o Modal de Confirmação visual
+                const totalCents = this.cart.reduce((sum, item) => {
+                    let price = item.originalPriceCents;
+                    if (this.customerIsClub && item.clubPriceCents) price = item.clubPriceCents;
+                    return sum + (price * item.quantity);
+                }, 0);
+
+                // Armazenar qual foi o meio clicado
+                this.tempCheckoutMethod = method;
+                
+                // Exibir infos no modal construído no HTML abaixo
+                document.getElementById('review-method').innerText = method.toUpperCase();
+                document.getElementById('review-total').innerText = formatMoney(totalCents);
+                
+                const receivedInput = document.getElementById('review-received');
+                const changeDisplay = document.getElementById('review-change');
+                
+                if (method.toUpperCase() === 'DINHEIRO') {
+                    document.getElementById('review-cash-section').style.display = 'block';
+                    receivedInput.value = (totalCents / 100).toFixed(2);
+                    changeDisplay.innerText = formatMoney(0);
+                    
+                    receivedInput.onkeyup = (e) => {
+                        let parsed = parseFloat(e.target.value.replace(',','.'));
+                        if(isNaN(parsed)) parsed = 0;
+                        let rcvCents = Math.round(parsed * 100);
+                        let change = rcvCents - totalCents;
+                        if (change < 0) change = 0;
+                        changeDisplay.innerText = formatMoney(change);
+                    };
+                    
+                } else {
+                    document.getElementById('review-cash-section').style.display = 'none';
+                }
+
+                document.getElementById('checkout-review-modal').showModal();
+            },
+            
+            confirmCheckoutFinal() {
+                document.getElementById('checkout-review-modal').close();
+
                 let finalDoc = this.docInput.value.replace(/\D/g, '');
                 
                 this.payloadField.value = JSON.stringify({
-                    payment_method: method,
+                    payment_method: this.tempCheckoutMethod,
                     customer_document: finalDoc,
                     items: this.cart.map(i => ({ id: i.id, quantity: i.quantity }))
                 });

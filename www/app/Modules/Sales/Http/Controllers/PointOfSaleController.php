@@ -181,7 +181,7 @@ class PointOfSaleController extends Controller
                     'actor_id' => $actor->id,
                     'actor_type' => get_class($actor),
                     'type' => 'OUT',
-                    'quantity' => $item['quantity'],
+                    'quantity' => -abs($item['quantity']),
                     'transaction_motive' => 'FRENTE DE CAIXA PDV / VENDA #' . $sale->id
                 ]);
 
@@ -214,15 +214,14 @@ class PointOfSaleController extends Controller
             $transaction->source_id = $sale->id;
             $transaction->save();
 
+            // 5. Integração Fiscal (Sefaz)
+            // Lançamos ANTES do commit. Se falhar, o estoque é devolvido (rollback cai no catch)
+            $fiscalDoc = $this->nfeService->transmitMockSale($sale);
+
             // Salvar e Confirmar DB (A partir daqui o dinheiro e estoque são irreversíveis nativamente)
             DB::commit();
 
-            // 5. Integração Fiscal (Sefaz)
-            // Emitimos o documento e guardamos o protocolo.
-            $fiscalDoc = $this->nfeService->transmitMockSale($sale);
-
             // 6. Integração Hardware (Impressora Minitérmica TCP)
-            // Faremos a tentativa em modalidade Try-Catch interno para não quebrar a view se a impressora desligar no exato milissegundo.
             $this->printerService->printReceipt($sale, $fiscalDoc);
 
             $statusText = "Baixa de Estoque Realizada. " . format_money($calculatedTotal) . " recebidos. Recibo enviado para impressora!";
