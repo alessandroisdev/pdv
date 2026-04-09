@@ -17,6 +17,7 @@ Route::middleware(['web', 'auth'])->prefix('estoque')->name('inventory.')->group
     Route::get('/produtos/{product}/estoque', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'index'])->name('products.stock');
     Route::post('/produtos/{product}/estoque/datatable', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'datatable'])->name('products.stock.datatable');
     Route::post('/produtos/{product}/estoque', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'store'])->name('products.stock.store');
+    Route::post('/produtos/{product}/batch', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'receiveBatch'])->name('products.stock.batch');
     
     Route::get('/categorias', [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/categorias/datatable', [CategoryController::class, 'datatable'])->name('categories.datatable');
