@@ -47,7 +47,7 @@ class StockMovementController extends Controller
         StockMovement::create([
             'product_id' => $product->id,
             'actor_id' => Auth::id() ?? 1, // Fallback p/ admin se nulo por acidente na sessão
-            'actor_type' => \App\Modules\Settings\Models\User::class, // Assinando como Usuário Polimórfico
+            'actor_type' => \App\Models\User::class, // Assinando como Usuário Polimórfico
             'quantity' => $quantity,
             'type' => 'ADJUSTMENT',
             'transaction_motive' => mb_strtoupper($request->input('transaction_motive')),
