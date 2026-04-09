@@ -7,6 +7,8 @@ use App\Modules\Sales\Http\Controllers\CatalogController;
 
 Route::middleware(['web', 'auth'])->prefix('vendas')->name('sales.')->group(function () {
     Route::get('/caixas', [CashRegisterController::class, 'index'])->name('cash_registers.index');
+    Route::get('/caixas/exportar', [CashRegisterController::class, 'exportCsv'])->name('cash_registers.export');
+    Route::get('/caixas/{id}', [CashRegisterController::class, 'show'])->name('cash_registers.show');
     
     // Frente de Caixa
     Route::get('/pdv', [PointOfSaleController::class, 'index'])->name('pos.board');

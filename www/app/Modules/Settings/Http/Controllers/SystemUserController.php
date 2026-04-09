@@ -37,6 +37,28 @@ class SystemUserController extends Controller
 
         return redirect()->back()->with('success', 'Usuário de Sistema Criado!');
     }
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:MANAGER,CASHIER',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->back()->with('success', 'Usuário atualizado!');
+    }
 
     public function destroy(User $user)
     {

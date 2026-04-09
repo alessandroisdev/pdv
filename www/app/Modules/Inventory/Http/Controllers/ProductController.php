@@ -47,6 +47,35 @@ class ProductController extends Controller
         return redirect()->route('inventory.products.index')->with('success', 'Produto cadastrado com sucesso!');
     }
 
+    public function edit(Product $product)
+    {
+        $categories = Category::all();
+        return view('inventory::products.edit', compact('product', 'categories'));
+    }
+
+    public function update(ProductStoreRequest $request, Product $product)
+    {
+        $data = $request->validated();
+
+        $costCents = $this->parseCurrencyToCents($data['cost_price']);
+        $saleCents = $this->parseCurrencyToCents($data['sale_price']);
+
+        $product->fill([
+            'name' => $data['name'],
+            'sku' => $data['sku'],
+            'barcode' => $data['barcode'],
+            'description' => $data['description'],
+            'category_id' => $data['category_id'] ?: null,
+        ]);
+        
+        $product->cost_price = new Money($costCents);
+        $product->sale_price = new Money($saleCents);
+        
+        $product->save();
+
+        return redirect()->route('inventory.products.index')->with('success', 'Produto atualizado com sucesso!');
+    }
+
     /**
      * Helper to bypass float errors converting user string (1.200,50) to integer cents (120050)
      */

@@ -1,29 +1,38 @@
 <x-layouts.app>
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-slate-800">Motor Tributário - Sandbox</h2>
-        <p class="text-slate-500">Laboratório de Testes de Configuração NFC-e / NFePHP</p>
-    </div>
-
-    <div class="card bg-white shadow-sm border border-slate-200">
-        <div class="card-header bg-slate-50 border-b border-slate-100 flex justify-between items-center p-4">
-            <h3 class="font-bold text-slate-700 m-0"><i class="fa fa-vial text-indigo-500"></i> Status do Motor de Geração</h3>
-            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full uppercase">{{ $sandboxData['status'] }}</span>
+    <div class="p-6">
+        <div class="mb-4 border-b border-slate-200 pb-4" style="margin-bottom: 2rem;">
+            <h2 class="text-primary fw-bold" style="font-size: 1.75rem;">Motor Tributário - Sandbox</h2>
+            <p class="text-light" style="margin-top: 0.25rem;">Laboratório de Testes de Configuração NFC-e / NFePHP.</p>
         </div>
-        <div class="card-body p-6">
-            <p class="mb-4 text-emerald-600 font-bold"><i class="fa fa-check-circle"></i> {{ $sandboxData['message'] }}</p>
 
-            <h4 class="font-bold text-slate-700 mb-2">Payload JSON (NFePHP Tools Constructor)</h4>
-            <div class="bg-slate-900 rounded p-4 overflow-x-auto">
-                <pre class="text-emerald-400 text-sm font-mono m-0"><code>{{ json_encode($sandboxData['config_generated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
+        <div class="card bg-white border-0 shadow-sm" style="border-radius: 0.75rem; overflow: hidden;">
+            <div style="background: #f8fafc; border-bottom: 1px solid #f1f5f9; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.125rem; font-weight: bold; color: #1e293b; margin: 0;">
+                    <i class="fa fa-vial" style="color: #6366f1;"></i> Status do Motor de Geração
+                </h3>
+                <span style="background: #e0e7ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">
+                    {{ $sandboxData['status'] }}
+                </span>
             </div>
             
-            <div class="mt-6 flex flex-col gap-4">
-                <div class="flex gap-2">
-                    <button id="btn-ping" onclick="pingSefaz()" class="btn btn-primary bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded">
-                        <i class="fa fa-plug"></i> Testar Conexão SOAP SEFAZ
-                    </button>
+            <div style="padding: 1.5rem;">
+                <p style="margin-bottom: 1.5rem; color: #059669; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa fa-check-circle"></i> {{ $sandboxData['message'] }}
+                </p>
+
+                <h4 style="font-weight: bold; color: #334155; margin-bottom: 0.75rem; font-size: 0.875rem;">Payload JSON (NFePHP Tools Constructor)</h4>
+                <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem; overflow-x: auto;">
+                    <pre style="color: #34d399; font-size: 0.875rem; font-family: monospace; margin: 0;"><code>{{ json_encode($sandboxData['config_generated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
                 </div>
-                <div id="ping-result" class="hidden p-4 rounded-lg text-sm font-mono border">
+                
+                <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-ping" onclick="pingSefaz()" class="btn shadow" style="background: #4f46e5; border: none; color: white; padding: 0.75rem 1.5rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: background 0.2s;">
+                            <i class="fa fa-plug" style="margin-right: 0.5rem;"></i> Testar Conexão SOAP SEFAZ
+                        </button>
+                    </div>
+                    <div id="ping-result" style="display: none; padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-family: monospace; border: 1px solid #e2e8f0;">
+                    </div>
                 </div>
             </div>
         </div>
@@ -34,9 +43,11 @@
             const btn = document.getElementById('btn-ping');
             const resultBox = document.getElementById('ping-result');
             
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Conectando...';
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin" style="margin-right: 0.5rem;"></i> Conectando...';
             btn.disabled = true;
-            resultBox.classList.add('hidden');
+            btn.style.opacity = '0.7';
+            
+            resultBox.style.display = 'none';
             resultBox.innerHTML = '';
 
             fetch('{{ route("fiscal.sandbox.ping") }}', {
@@ -48,25 +59,32 @@
             })
             .then(res => res.json())
             .then(data => {
-                btn.innerHTML = '<i class="fa fa-plug"></i> Testar Conexão SOAP SEFAZ';
+                btn.innerHTML = '<i class="fa fa-plug" style="margin-right: 0.5rem;"></i> Testar Conexão SOAP SEFAZ';
                 btn.disabled = false;
-                resultBox.classList.remove('hidden');
+                btn.style.opacity = '1';
+                resultBox.style.display = 'block';
 
                 if(data.success) {
-                    resultBox.classList.remove('bg-red-50', 'border-red-200', 'text-red-700');
-                    resultBox.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-700');
+                    resultBox.style.background = '#ecfdf5';
+                    resultBox.style.borderColor = '#a7f3d0';
+                    resultBox.style.color = '#047857';
                     resultBox.innerHTML = `<strong>SUCESSO!</strong><br>Status: ${data.status_code}<br>Motivo: ${data.reason}<br>Latência: ${data.latency} Segundos`;
                 } else {
-                    resultBox.classList.remove('bg-emerald-50', 'border-emerald-200', 'text-emerald-700');
-                    resultBox.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+                    resultBox.style.background = '#fef2f2';
+                    resultBox.style.borderColor = '#fecaca';
+                    resultBox.style.color = '#b91c1c';
                     resultBox.innerHTML = `<strong>FALHA:</strong><br>${data.error}`;
                 }
             })
             .catch(err => {
-                btn.innerHTML = '<i class="fa fa-plug"></i> Testar Conexão SOAP SEFAZ';
+                btn.innerHTML = '<i class="fa fa-plug" style="margin-right: 0.5rem;"></i> Testar Conexão SOAP SEFAZ';
                 btn.disabled = false;
-                resultBox.classList.remove('hidden');
-                resultBox.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+                btn.style.opacity = '1';
+                
+                resultBox.style.display = 'block';
+                resultBox.style.background = '#fef2f2';
+                resultBox.style.borderColor = '#fecaca';
+                resultBox.style.color = '#b91c1c';
                 resultBox.innerHTML = `<strong>ERRO FATAL:</strong> Não foi possível comunicar com o servidor interno.`;
             });
         }

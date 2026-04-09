@@ -1,34 +1,39 @@
 <x-layouts.app>
-    <div class="p-6">
-        <div class="flex justify-between items-end mb-6">
-            <div>
-                <h2 class="text-2xl fw-bold text-slate-800">Relatórios Automáticos & Analytics</h2>
-                <p class="text-slate-500">Métricas analíticas baseadas no Livro Razão.</p>
-            </div>
-            <div class="flex gap-2">
-                <a href="{{ route('finance.dashboard') }}" class="btn bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg font-semibold shadow-sm transition-colors">
-                    <i class="fa fa-arrow-left mr-2"></i> Voltar ao Dashboard
-                </a>
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h2 class="text-primary fw-bold" style="font-size: 1.75rem;">Relatórios Automáticos & Analytics</h2>
+            <p class="text-light" style="margin-top: 0.25rem;">Métricas analíticas baseadas no Livro Razão.</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{{ route('finance.dashboard') }}" class="btn btn-outline" style="background: white;">
+                <i class="fa fa-arrow-left"></i> Voltar ao Dashboard
+            </a>
+        </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card">
+            <div class="card-body" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div style="color: #64748b; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Faturamento Diário</div>
+                <div style="font-size: 1.875rem; font-weight: bold; color: #1e293b;">R$ {{ number_format($todayIncome / 100, 2, ',', '.') }}</div>
             </div>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center items-center text-center">
-                <div class="text-slate-500 font-semibold mb-2 uppercase text-sm tracking-widest">Faturamento Diário</div>
-                <div class="text-3xl font-bold text-slate-800">R$ {{ number_format($todayIncome / 100, 2, ',', '.') }}</div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center items-center text-center border-l-4 border-rose-500">
-                <div class="text-slate-500 font-semibold mb-2 uppercase text-sm tracking-widest">Despesas Diárias</div>
-                <div class="text-3xl font-bold text-rose-600">R$ {{ number_format($todayExpense / 100, 2, ',', '.') }}</div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center items-center text-center border-l-4 border-emerald-500">
-                <div class="text-slate-500 font-semibold mb-2 uppercase text-sm tracking-widest">Margem Contribuição</div>
-                <div class="text-3xl font-bold text-emerald-600">{{ number_format($profitMargin, 1, ',', '') }}%</div>
+        <div class="card" style="border-left: 4px solid #f43f5e;">
+            <div class="card-body" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div style="color: #64748b; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Despesas Diárias</div>
+                <div style="font-size: 1.875rem; font-weight: bold; color: #e11d48;">R$ {{ number_format($todayExpense / 100, 2, ',', '.') }}</div>
             </div>
         </div>
+        <div class="card" style="border-left: 4px solid #10b981;">
+            <div class="card-body" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div style="color: #64748b; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Margem Contribuição</div>
+                <div style="font-size: 1.875rem; font-weight: bold; color: #059669;">{{ number_format($profitMargin, 1, ',', '') }}%</div>
+            </div>
+        </div>
+    </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-6 border-b border-slate-100 pb-2">Evolução do Faturamento (Últimos 7 Dias)</h3>
+    <div class="card">
+        <div class="card-body" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.125rem; font-weight: bold; color: #1e293b; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">Evolução do Faturamento (Últimos 7 Dias)</h3>
             <canvas id="financeChart" height="100"></canvas>
         </div>
     </div>

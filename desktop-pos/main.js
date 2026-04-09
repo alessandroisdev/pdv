@@ -62,20 +62,27 @@ async function fetchSignageConfig() {
             // Usa .tmp para evitar que o player tente ler arquivos não finalizados e corrompa a execução
             if (!fs.existsSync(filePath)) {
                 console.log(`Baixando mídia para Standby: ${media.url}`);
-                const tmpPath = filePath + '.tmp';
+                const tmpPath = filePath + '.' + Date.now() + '.tmp';
                 try {
                     const writer = fs.createWriteStream(tmpPath);
                     const req = await axios.get(media.url, { responseType: 'stream', timeout: 30000 });
                     req.data.pipe(writer);
+                    
                     await new Promise((resolve, reject) => {
-                        writer.on('finish', resolve);
+                        writer.on('close', resolve);
                         writer.on('error', reject);
+                        req.data.on('error', reject);
                     });
-                    fs.renameSync(tmpPath, filePath); // Renomeia atômicamente ao finalizar download
+                    
+                    if (!fs.existsSync(filePath)) {
+                        fs.renameSync(tmpPath, filePath); // Renomeia atômicamente ao finalizar, agora sem locks
+                    } else {
+                        try { fs.unlinkSync(tmpPath); } catch(e){} // Se concorrência salvou primeiro
+                    }
                     finalUri = 'file://' + filePath;
                 } catch (err) {
                     console.error(`Erro ao baixar ${media.url}:`, err.message);
-                    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+                    try { if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath); } catch(e) {}
                     finalUri = media.url; // Resiliência: em caso de falha de download, tenta streaming
                 }
             } else {

@@ -11,11 +11,13 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     Route::get('/configuracoes/usuarios', [SystemUserController::class, 'index'])->name('settings.users.index');
     Route::post('/configuracoes/usuarios', [SystemUserController::class, 'store'])->name('settings.users.store');
+    Route::put('/configuracoes/usuarios/{user}', [SystemUserController::class, 'update'])->name('settings.users.update');
     Route::delete('/configuracoes/usuarios/{user}', [SystemUserController::class, 'destroy'])->name('settings.users.destroy');
 
     // Digital Signage Standby Menu
     Route::get('/configuracoes/standby', [\App\Modules\Settings\Http\Controllers\StandbyMediaController::class, 'index'])->name('settings.standby.index');
     Route::post('/configuracoes/standby/timeout', [\App\Modules\Settings\Http\Controllers\StandbyMediaController::class, 'updateTimeout'])->name('settings.standby.timeout');
     Route::post('/configuracoes/standby', [\App\Modules\Settings\Http\Controllers\StandbyMediaController::class, 'store'])->name('settings.standby.store');
+    Route::post('/configuracoes/standby/{media}/move', [\App\Modules\Settings\Http\Controllers\StandbyMediaController::class, 'move'])->name('settings.standby.move');
     Route::delete('/configuracoes/standby/{media}', [\App\Modules\Settings\Http\Controllers\StandbyMediaController::class, 'destroy'])->name('settings.standby.destroy');
 });

@@ -36,11 +36,22 @@ class ThermalPrinterService
             throw new Exception("IP ou Rota da impressora não está configurado. Vá em Configurações Globais.");
         }
 
-        // Simula uma tentativa limite de 3 segundos para não travar a UI (Timeout nativo do Mike42 se não tiver socket pode congelar o script, 
-        // mas faremos um ping nativo ou fsockopen() antes para assegurar estabilidade)
+        // Identificar se o usuário configurou uma fila de impressão do Windows (via USB ou Compartilhamento SAMBA/SMB)
+        // Se houver barra invertida '\\' (ex: \\computador\impressora) ou se não for um IP válido/localhost
+        $isWindowsQueue = !filter_var($this->printerIp, FILTER_VALIDATE_IP) && strtolower($this->printerIp) !== 'localhost';
+
+        if ($isWindowsQueue) {
+            try {
+                return new WindowsPrintConnector($this->printerIp);
+            } catch (Exception $e) {
+                throw new Exception("Falha ao conectar via USB/Compartilhamento (WindowsPrintConnector) em '{$this->printerIp}': " . $e->getMessage());
+            }
+        }
+
+        // Se for conexão Ethernet/RAW/TCP IP: Simula uma tentativa limite de 2s para não travar a UI (Timeout)
         $sock = @fsockopen($this->printerIp, $this->printerPort, $errCode, $errStr, 2);
         if (!$sock) {
-            throw new Exception("A Impressora Térmica ($this->printerIp:$this->printerPort) está Desligada ou inalcançável na rede.");
+            throw new Exception("A Impressora Térmica ($this->printerIp:$this->printerPort) está Desligada ou inalcançável na rede TCP/IP.");
         }
         fclose($sock);
 

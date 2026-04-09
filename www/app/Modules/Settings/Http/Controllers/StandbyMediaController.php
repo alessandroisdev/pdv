@@ -49,6 +49,28 @@ class StandbyMediaController extends Controller
         return redirect()->back()->with('success', 'Mídia removida com sucesso!');
     }
 
+    public function move(Request $request, StandbyMedia $media)
+    {
+        $direction = $request->input('direction');
+
+        if ($direction === 'up') {
+            $adjacentItem = StandbyMedia::where('sort_order', '<', $media->sort_order)->orderBy('sort_order', 'desc')->first();
+        } else {
+            $adjacentItem = StandbyMedia::where('sort_order', '>', $media->sort_order)->orderBy('sort_order', 'asc')->first();
+        }
+
+        if ($adjacentItem) {
+            $tempOrder = $media->sort_order;
+            $media->sort_order = $adjacentItem->sort_order;
+            $adjacentItem->sort_order = $tempOrder;
+            
+            $media->save();
+            $adjacentItem->save();
+        }
+
+        return redirect()->back();
+    }
+
     public function updateTimeout(Request $request)
     {
         $request->validate(['timeout' => 'required|integer|min:10']);

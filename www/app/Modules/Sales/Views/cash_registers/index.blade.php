@@ -7,19 +7,21 @@
             <p class="text-light" style="margin-top: 0.25rem;">Monitoramento de turnos e aberturas de caixa em tempo real.</p>
         </div>
         <div>
-            <button class="btn btn-outline" style="background-color: white;" onclick="alert('Funcionalidade de Relatórios consolidada nas telas do Operador.')">Relatório de Fechamentos</button>
+            <a href="{{ route('sales.cash_registers.export') }}" class="btn btn-outline" style="background-color: white;">
+                <i class="fa fa-file-excel"></i> Relatório de Fechamentos
+            </a>
         </div>
     </div>
 
     <!-- Filtros Básicos -->
     <x-ui.card class="mb-4">
         <div class="flex gap-4 items-center">
-            <select style="padding: 0.6rem 2rem 0.6rem 1rem; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; background: white;">
+            <select class="form-control" style="width: auto;">
                 <option value="">Status: Todos</option>
                 <option value="open">Abertos</option>
                 <option value="closed">Fechados</option>
             </select>
-            <button class="btn btn-primary" style="background: #e2e8f0; color: #455073;">Aplicar Filtro</button>
+            <button class="btn btn-primary" style="background: #e2e8f0; color: #455073; border-color: #e2e8f0;">Aplicar Filtro</button>
         </div>
     </x-ui.card>
 
@@ -43,17 +45,17 @@
                 @endphp
                 <tr>
                     <td>#{{ str_pad($register->id, 5, '0', STR_PAD_LEFT) }}</td>
-                    <td class="fw-semibold">{{ $register->user->name ?? 'PDV User' }}</td>
+                    <td class="fw-semibold">{{ $register->operator->name ?? 'PDV User' }}</td>
                     <td>
                         <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; {{ $isOpen ? 'background: #dcfce7; color: #166534;' : 'background: #e2e8f0; color: #475569;' }}">
                             {{ $isOpen ? 'ABERTO' : 'FECHADO' }}
                         </span>
                     </td>
                     <td>{{ $register->opened_at->format('d/m/Y H:i') }}</td>
-                    <td>{{ clone $register->opening_balance }}</td>
+                    <td class="fw-semibold text-emerald-600">R$ {{ number_format($register->initial_cents / 100, 2, ',', '.') }}</td>
                     <td class="text-light">{{ $register->closed_at ? $register->closed_at->format('d/m/Y H:i') : '---' }}</td>
                     <td style="text-align: right;">
-                        <button class="btn" style="padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; color: #455073; font-size: 0.75rem;">Auditar</button>
+                        <a href="{{ route('sales.cash_registers.show', $register->id) }}" class="btn" style="padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; color: #455073; font-size: 0.75rem; text-decoration: none; display: inline-block;">Auditar</a>
                     </td>
                 </tr>
             @empty

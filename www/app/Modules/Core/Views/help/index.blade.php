@@ -1,30 +1,30 @@
 <x-layouts.app>
     <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
+        <div class="mb-4 border-b border-slate-200 pb-4 flex justify-between items-center" style="margin-bottom: 2rem;">
             <div>
-                <h2 class="text-2xl font-bold text-slate-800">Manual e Regras de Negócio (FAQ)</h2>
-                <p class="text-slate-500">Documentação imutável da inteligência do sistema para instrução da equipe.</p>
+                <h2 class="text-primary fw-bold" style="font-size: 1.75rem;">Manual e Regras de Negócio (FAQ)</h2>
+                <p class="text-light" style="margin-top: 0.25rem;">Documentação imutável da inteligência do sistema para instrução da equipe.</p>
             </div>
-            <div class="relative w-80">
-                <input type="text" id="faq-search" class="w-full bg-white border border-slate-200 text-slate-700 rounded-lg pl-10 pr-4 py-2 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Buscar dúvida..." onkeyup="filterFaqs()">
-                <i class="fa fa-search absolute left-3 top-3 text-slate-400"></i>
+            <div style="position: relative; width: 100%; max-width: 20rem;">
+                <input type="text" id="faq-search" class="form-control hover-border transition" style="width: 100%; padding-left: 2.5rem; border-radius: 0.5rem;" placeholder="Buscar dúvida..." onkeyup="filterFaqs()">
+                <i class="fa fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
             </div>
         </div>
 
-        <div class="grid gap-4" id="faq-container">
+        <div style="display: flex; flex-direction: column; gap: 1rem;" id="faq-container">
             @foreach($faqs as $index => $faq)
-            <div class="faq-item bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden transition-all duration-200" data-content="{{ e(strtolower($faq['title'] . ' ' . $faq['content'] . ' ' . implode(' ', $faq['tags']))) }}">
-                <button class="w-full text-left p-5 flex justify-between items-center bg-white hover:bg-slate-50 focus:outline-none transition-colors" onclick="toggleAcc({{ $index }})">
-                    <span class="font-bold text-lg text-slate-800">{{ $faq['title'] }}</span>
-                    <i id="icon-{{ $index }}" class="fa fa-chevron-down text-slate-400 transform transition-transform duration-200"></i>
+            <div class="faq-item shadow-sm" data-content="{{ e(strtolower($faq['title'] . ' ' . $faq['content'] . ' ' . implode(' ', $faq['tags']))) }}" style="background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; transition: all 0.2s;">
+                <button class="hover-bg-transition" style="width: 100%; text-align: left; padding: 1.25rem; display: flex; justify-content: space-between; items-center; background: white; border: none; cursor: pointer; outline: none; border-bottom: 1px solid transparent;" onclick="toggleAcc({{ $index }})">
+                    <span style="font-weight: bold; font-size: 1.125rem; color: #1e293b;">{{ $faq['title'] }}</span>
+                    <i id="icon-{{ $index }}" class="fa fa-chevron-down" style="color: #94a3b8; transition: transform 0.2s;"></i>
                 </button>
-                <div id="content-{{ $index }}" class="px-5 pb-5 bg-white hidden">
-                    <div class="pt-4 border-t border-slate-100 text-slate-600 leading-relaxed text-sm md:text-base">
+                <div id="content-{{ $index }}" style="display: none; padding: 0 1.25rem 1.25rem 1.25rem; background: white;">
+                    <div style="padding-top: 1rem; border-top: 1px solid #f1f5f9; color: #475569; line-height: 1.6; font-size: 0.9rem;">
                         {{ $faq['content'] }}
                     </div>
-                    <div class="mt-4 flex gap-2 flex-wrap">
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         @foreach($faq['tags'] as $tag)
-                            <span class="bg-indigo-50 text-indigo-700 text-xs px-2 py-1 rounded shadow-sm border border-indigo-100 font-semibold uppercase">#{{ $tag }}</span>
+                            <span style="background: #eef2ff; color: #4338ca; font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; border: 1px solid #e0e7ff; font-weight: bold; text-transform: uppercase;">#{{ $tag }}</span>
                         @endforeach
                     </div>
                 </div>
@@ -32,24 +32,33 @@
             @endforeach
         </div>
         
-        <div id="no-results" class="hidden text-center py-16 bg-white border border-slate-200 rounded-xl mt-4 text-slate-500 shadow-sm">
-            <div class="text-4xl mb-4 text-slate-300"><i class="fa fa-question-circle"></i></div>
-            <h4 class="text-lg font-bold text-slate-700 mb-1">Nenhum resultado encontrado</h4>
-            <p>Nenhuma ajuda encontrada para os termos digitados.</p>
+        <div id="no-results" style="display: none; text-align: center; padding: 4rem 1rem; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; margin-top: 1rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);">
+            <div style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"><i class="fa fa-question-circle"></i></div>
+            <h4 style="font-size: 1.125rem; font-weight: bold; color: #334155; margin-bottom: 0.25rem;">Nenhum resultado encontrado</h4>
+            <p style="color: #64748b; margin: 0;">Nenhuma ajuda encontrada para os termos digitados.</p>
         </div>
     </div>
+
+    <style>
+        .hover-bg-transition:hover {
+            background-color: #f8fafc !important;
+        }
+    </style>
 
     <script>
         function toggleAcc(index) {
             const content = document.getElementById('content-' + index);
             const icon = document.getElementById('icon-' + index);
+            const btn = icon.parentElement;
             
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
                 icon.style.transform = 'rotate(180deg)';
+                btn.style.borderBottomColor = '#f1f5f9';
             } else {
-                content.classList.add('hidden');
+                content.style.display = 'none';
                 icon.style.transform = 'rotate(0deg)';
+                btn.style.borderBottomColor = 'transparent';
             }
         }
 

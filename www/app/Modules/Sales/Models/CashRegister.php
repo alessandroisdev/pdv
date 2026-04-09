@@ -18,6 +18,11 @@ class CashRegister extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'closed_at'
     ];
 
+    protected $casts = [
+        'opened_at' => 'datetime',
+        'closed_at' => 'datetime',
+    ];
+
     public function operator()
     {
         return $this->morphTo('opened_by');

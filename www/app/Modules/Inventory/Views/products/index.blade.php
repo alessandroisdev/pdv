@@ -70,10 +70,13 @@
                                         {{ $product->current_stock }} Und
                                     </span>
                                 </td>
-                                <td style="padding: 1rem; text-align: right;">
-                                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                <td style="padding: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center;">
+                                    <a href="{{ route('inventory.products.stock', $product) }}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; text-decoration: none; border-color: #10b981; color: #047857;">
+                                        <i class="fa fa-boxes"></i> Estoque
+                                    </a>
+                                    <a href="{{ route('inventory.products.edit', $product) }}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; text-decoration: none;">
                                         Editar
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
                         @empty

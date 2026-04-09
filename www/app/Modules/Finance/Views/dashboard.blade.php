@@ -1,92 +1,92 @@
 <x-layouts.app>
-    <div class="mb-6 flex justify-between items-end">
+    <div class="mb-4 flex flex-wrap justify-between items-center" style="margin-bottom: 1.5rem;">
         <div>
-            <h2 class="text-2xl font-bold text-slate-800">Painel Financeiro & Auditoria</h2>
-            <p class="text-slate-500">Visão Analítica de Receitas, Despesas e Monitoramento de Risco</p>
+            <h2 class="text-primary fw-bold" style="font-size: 1.75rem;">Painel Financeiro & Auditoria</h2>
+            <p class="text-light" style="margin-top: 0.25rem;">Visão Analítica de Receitas, Despesas e Monitoramento de Risco</p>
         </div>
         <div class="flex gap-2">
-            <a href="/api/documentation" target="_blank" class="btn btn-outline-primary shadow-sm bg-white font-bold border-indigo-200 text-indigo-700">
+            <a href="/api/documentation" target="_blank" class="btn btn-outline" style="background-color: white;">
                 <i class="fa fa-book"></i> API Swagger Docs
             </a>
-            <a href="{{ route('finance.transactions.export') }}" class="btn btn-primary shadow-md font-bold text-white bg-emerald-600 hover:bg-emerald-700">
+            <a href="{{ route('finance.transactions.export') }}" class="btn btn-primary" style="background: #10b981; border-color: #10b981;">
                 <i class="fa fa-file-excel"></i> Exportar Relatório
             </a>
         </div>
     </div>
 
     <!-- Cards de Resumo -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="card bg-white shadow-sm border-l-4 border-indigo-500">
-            <div class="card-body p-5">
-                <p class="text-sm font-semibold text-slate-500 uppercase">Saldo em Caixa Real</p>
-                <h3 class="text-3xl font-bold text-slate-800 mt-2">R$ {{ number_format($metrics['cash_balance'], 2, ',', '.') }}</h3>
-                <p class="text-xs text-indigo-600 font-bold mt-2"><i class="fa fa-arrow-up"></i> +12.5% este mês</p>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div class="card" style="border-left: 4px solid #6366f1;">
+            <div class="card-body" style="padding: 1.5rem;">
+                <p style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Saldo em Caixa Real</p>
+                <h3 style="font-size: 1.875rem; font-weight: bold; color: #1e293b; margin-top: 0.5rem; margin-bottom: 0;">R$ {{ number_format($metrics['cash_balance'], 2, ',', '.') }}</h3>
+                <p style="font-size: 0.75rem; font-weight: bold; color: #4f46e5; margin-top: 0.5rem; margin-bottom: 0;"><i class="fa fa-arrow-up"></i> +12.5% este mês</p>
             </div>
         </div>
-        <div class="card bg-white shadow-sm border-l-4 border-emerald-500">
-            <div class="card-body p-5">
-                <p class="text-sm font-semibold text-slate-500 uppercase">Receitas Brutas</p>
-                <h3 class="text-3xl font-bold text-slate-800 mt-2">R$ {{ number_format($metrics['monthly_incomes'], 2, ',', '.') }}</h3>
-                <p class="text-xs text-emerald-600 font-bold mt-2"><i class="fa fa-check-circle"></i> Meta Batida</p>
+        <div class="card" style="border-left: 4px solid #10b981;">
+            <div class="card-body" style="padding: 1.5rem;">
+                <p style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Receitas Brutas</p>
+                <h3 style="font-size: 1.875rem; font-weight: bold; color: #1e293b; margin-top: 0.5rem; margin-bottom: 0;">R$ {{ number_format($metrics['monthly_incomes'], 2, ',', '.') }}</h3>
+                <p style="font-size: 0.75rem; font-weight: bold; color: #059669; margin-top: 0.5rem; margin-bottom: 0;"><i class="fa fa-check-circle"></i> Meta Batida</p>
             </div>
         </div>
-        <div class="card bg-white shadow-sm border-l-4 border-rose-500">
-            <div class="card-body p-5">
-                <p class="text-sm font-semibold text-slate-500 uppercase">Despesas / Variáveis</p>
-                <h3 class="text-3xl font-bold text-slate-800 mt-2">R$ {{ number_format($metrics['monthly_expenses'], 2, ',', '.') }}</h3>
-                <p class="text-xs text-rose-600 font-bold mt-2"><i class="fa fa-exclamation-triangle"></i> Atenção aos Gastos</p>
+        <div class="card" style="border-left: 4px solid #f43f5e;">
+            <div class="card-body" style="padding: 1.5rem;">
+                <p style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Despesas / Variáveis</p>
+                <h3 style="font-size: 1.875rem; font-weight: bold; color: #1e293b; margin-top: 0.5rem; margin-bottom: 0;">R$ {{ number_format($metrics['monthly_expenses'], 2, ',', '.') }}</h3>
+                <p style="font-size: 0.75rem; font-weight: bold; color: #e11d48; margin-top: 0.5rem; margin-bottom: 0;"><i class="fa fa-exclamation-triangle"></i> Atenção aos Gastos</p>
             </div>
         </div>
-        <div class="card bg-white shadow-sm border-l-4 border-amber-500">
-            <div class="card-body p-5">
-                <p class="text-sm font-semibold text-slate-500 uppercase">Custos Fixos e Folha</p>
-                <h3 class="text-3xl font-bold text-slate-800 mt-2">R$ {{ number_format($metrics['fixed_costs'], 2, ',', '.') }}</h3>
-                <p class="text-xs text-amber-600 font-bold mt-2"><i class="fa fa-lock"></i> Contas Mensais</p>
+        <div class="card" style="border-left: 4px solid #f59e0b;">
+            <div class="card-body" style="padding: 1.5rem;">
+                <p style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Custos Fixos e Folha</p>
+                <h3 style="font-size: 1.875rem; font-weight: bold; color: #1e293b; margin-top: 0.5rem; margin-bottom: 0;">R$ {{ number_format($metrics['fixed_costs'], 2, ',', '.') }}</h3>
+                <p style="font-size: 0.75rem; font-weight: bold; color: #d97706; margin-top: 0.5rem; margin-bottom: 0;"><i class="fa fa-lock"></i> Contas Mensais</p>
             </div>
         </div>
     </div>
 
     <!-- Ocular Central: Gráficos e Auditoria -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
         
         <!-- Grafico Fluxo -->
-        <div class="lg:col-span-2">
-            <div class="card shadow-sm h-full">
-                <div class="card-header bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700 m-0 uppercase text-sm"><i class="fa fa-chart-bar text-indigo-500"></i> DRE e Fluxo de Caixa Diário</h3>
+        <div>
+            <div class="card" style="height: 100%;">
+                <div class="card-header" style="background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="font-weight: bold; color: #334155; margin: 0; text-transform: uppercase; font-size: 0.875rem;"><i class="fa fa-chart-bar" style="color: #6366f1;"></i> DRE e Fluxo de Caixa Diário</h3>
                 </div>
-                <div class="card-body p-6">
+                <div class="card-body">
                     <canvas id="cashflowChart" height="100"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- Alertas de Auditoria -->
-        <div class="lg:col-span-1">
-            <div class="card shadow-sm border border-rose-100 h-full">
-                <div class="card-header bg-rose-50 border-b border-rose-100 flex justify-between items-center">
-                    <h3 class="font-bold text-rose-700 m-0 uppercase text-sm"><i class="fa fa-shield-alt"></i> Alertas de Auditoria</h3>
-                    <span class="bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded-full">{{ $criticalAudits->count() }} Novos</span>
+        <div>
+            <div class="card" style="height: 100%; border-color: #ffe4e6;">
+                <div class="card-header" style="background: #fff1f2; border-bottom: 1px solid #ffe4e6; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="font-weight: bold; color: #be123c; margin: 0; text-transform: uppercase; font-size: 0.875rem;"><i class="fa fa-shield-alt"></i> Alertas de Auditoria</h3>
+                    <span style="background: #e11d48; color: white; font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.5rem; border-radius: 999px;">{{ $criticalAudits->count() }} Novos</span>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body" style="padding: 0;">
                     @forelse($criticalAudits as $audit)
-                        <div class="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                            <div class="flex gap-3">
-                                <div class="bg-rose-100 text-rose-600 p-2 rounded-full h-10 w-10 flex items-center justify-center shrink-0">
+                        <div style="padding: 1rem; border-bottom: 1px solid #f8fafc; transition: background 0.2s;">
+                            <div style="display: flex; gap: 0.75rem;">
+                                <div style="background: #ffe4e6; color: #e11d48; border-radius: 999px; height: 2.5rem; width: 2.5rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <i class="fa fa-trash"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-slate-800">Exclusão: {{ class_basename($audit->auditable_type) }} #{{ $audit->auditable_id }}</h4>
-                                    <p class="text-xs text-slate-500 mt-1">Por Usuário ID: {{ $audit->user_id ?? 'Sistema' }}</p>
-                                    <p class="text-xs font-semibold text-rose-600 mt-1">{{ rtrim($audit->created_at->diffForHumans(), ' atrás') }}</p>
+                                    <h4 style="font-size: 0.875rem; font-weight: bold; color: #1e293b; margin: 0;">Exclusão: {{ class_basename($audit->auditable_type) }} #{{ $audit->auditable_id }}</h4>
+                                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; margin-bottom: 0;">Por Usuário ID: {{ $audit->user_id ?? 'Sistema' }}</p>
+                                    <p style="font-size: 0.75rem; font-weight: 600; color: #e11d48; margin-top: 0.25rem; margin-bottom: 0;">{{ rtrim($audit->created_at->diffForHumans(), ' atrás') }}</p>
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <div class="p-8 text-center text-slate-400">
-                            <i class="fa fa-check-circle text-4xl mb-3 text-emerald-400"></i>
-                            <p class="text-sm font-semibold">Tudo tranquilo.</p>
-                            <p class="text-xs">Nenhuma exclusão crítica registrada recentemente.</p>
+                        <div style="padding: 2rem; text-align: center; color: #94a3b8;">
+                            <i class="fa fa-check-circle" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #34d399;"></i>
+                            <p style="font-size: 0.875rem; font-weight: 600; margin: 0;">Tudo tranquilo.</p>
+                            <p style="font-size: 0.75rem; margin: 0;">Nenhuma exclusão crítica registrada recentemente.</p>
                         </div>
                     @endforelse
                 </div>
