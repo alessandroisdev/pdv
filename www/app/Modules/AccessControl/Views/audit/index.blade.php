@@ -60,97 +60,47 @@
 
         <!-- Grade de Logs -->
         <div class="card bg-white border-0 shadow-sm p-0 overflow-hidden" style="border-radius: 0.75rem;">
-            <x-ui.table>
-                <x-slot name="head">
-                    <tr>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Data/Hora</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Ator</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Ação</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Módulo Afetado</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem; width: 40%;">Diferença (Valores)</th>
-                    </tr>
-                </x-slot>
-                <x-slot name="body">
-                    @forelse($audits as $audit)
-                        <tr class="border-b transition hover:bg-slate-50" style="border-bottom: 1px solid #f1f5f9;">
-                            <td class="p-4" style="padding: 1rem; font-size: 0.85rem; color: #64748b; white-space: nowrap;">
-                                <div style="font-weight: bold; color: #1e293b;">{{ $audit->created_at->format('d/m/Y') }}</div>
-                                <div>{{ $audit->created_at->format('H:i:s') }}</div>
-                            </td>
-                            <td class="p-4" style="padding: 1rem;">
-                                <div style="font-weight: bold; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fa fa-user-circle" style="color: #94a3b8; font-size: 1.25rem;"></i> 
-                                    {{ $audit->user->name ?? 'Sistema / Externo' }}
-                                </div>
-                                <div style="font-size: 0.7rem; color: #94a3b8; font-family: monospace; margin-top: 0.25rem;">IP: {{ $audit->ip_address }}</div>
-                            </td>
-                            <td class="p-4" style="padding: 1rem;">
-                                @php
-                                    $color = match($audit->event) {
-                                        'created' => '#10b981', // green
-                                        'updated' => '#f59e0b', // orange
-                                        'deleted' => '#ef4444', // red
-                                        default => '#64748b'
-                                    };
-                                    $eventLabel = match($audit->event) {
-                                        'created' => 'Criação',
-                                        'updated' => 'Atualização',
-                                        'deleted' => 'Exclusão',
-                                        default => ucfirst($audit->event)
-                                    };
-                                @endphp
-                                <span style="background: {{ $color }}15; color: {{ $color }}; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.7rem; font-weight: bold; border: 1px solid {{ $color }}40; display: inline-block;">
-                                    {{ mb_strtoupper($eventLabel, 'UTF-8') }}
-                                </span>
-                            </td>
-                            <td class="p-4" style="padding: 1rem;">
-                                <div style="font-size: 0.85rem; font-weight: bold; color: #334155;">{{ class_basename($audit->auditable_type) }}</div>
-                                <div style="font-size: 0.75rem; color: #94a3b8;"># ID: {{ $audit->auditable_id }}</div>
-                            </td>
-                            <td class="p-4" style="padding: 1rem; font-size: 0.8rem;">
-                                @if(count($audit->old_values) > 0 || count($audit->new_values) > 0)
-                                    <div style="background: #1e293b; color: #e2e8f0; padding: 0.75rem; border-radius: 0.5rem; font-family: monospace; overflow-y: auto; max-height: 150px; line-height: 1.5; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2);">
-                                        @foreach($audit->new_values as $key => $newValue)
-                                            @php $oldValue = $audit->old_values[$key] ?? null; @endphp
-                                            @if($oldValue !== $newValue && !in_array($key, ['updated_at', 'created_at']))
-                                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.25rem; word-break: break-all;">
-                                                    <span style="color:#94a3b8; font-weight: bold;">{{ $key }}:</span> 
-                                                    @if($audit->event !== 'created')
-                                                        <del style="color:#ef4444">{{ is_array($oldValue) ? json_encode($oldValue) : $oldValue }}</del> 
-                                                        <span style="color:#64748b;">&#10142;</span> 
-                                                    @endif
-                                                    <span style="color:#10b981">{{ is_array($newValue) ? json_encode($newValue) : $newValue }}</span>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <span style="color:#94a3b8; font-style: italic;">Nenhum detalhe técnico</span>
-                                @endif
-                                
-                                @if($audit->url)
-                                    <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #94a3b8;">
-                                        <i class="fa fa-link"></i> {{ \Illuminate\Support\Str::limit($audit->url, 50) }}
-                                    </div>
-                                @endif
-                            </td>
+            <div style="overflow-x: auto; padding: 1.5rem;">
+                <table class="display responsive nowrap w-100" id="audit-logs-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                            <th style="padding: 1rem; text-align: left;">Data/Hora</th>
+                            <th style="padding: 1rem; text-align: left;">Ator</th>
+                            <th style="padding: 1rem; text-align: left;">Ação</th>
+                            <th style="padding: 1rem; text-align: left;">Módulo Afetado</th>
+                            <th style="padding: 1rem; text-align: left; width: 40%;">Diferença (Valores)</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="p-8 text-center" style="padding: 3rem; text-align: center;">
-                                <div style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"><i class="fa fa-search"></i></div>
-                                <div style="font-weight: bold; color: #64748b;">Nenhuma alteração registrada ou encontrada no filtro.</div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </x-slot>
-            </x-ui.table>
-            
-            @if($audits->hasPages())
-                <div class="p-4" style="padding: 1rem; border-top: 1px solid #e2e8f0; background: #f8fafc;">
-                    {{ $audits->links() }}
-                </div>
-            @endif
+                    </thead>
+                </table>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const initAuditTable = () => {
+                        if (typeof window.AppServerTable !== 'function') {
+                            setTimeout(initAuditTable, 100);
+                            return;
+                        }
+
+                        const urlParams = new URLSearchParams(window.location.search);
+                        let queryStr = '';
+                        if(urlParams.toString().length > 0) {
+                            queryStr = '?' + urlParams.toString();
+                        }
+                        
+                        const ajaxUrl = '{{ route('audit.datatable') }}' + queryStr;
+
+                        new window.AppServerTable('#audit-logs-table', ajaxUrl, [
+                            { data: 'datahora', name: 'created_at', searchable: false },
+                            { data: 'ator', searchable: false, orderable: false },
+                            { data: 'acao', name: 'event', searchable: false },
+                            { data: 'modulo', name: 'auditable_type', searchable: false },
+                            { data: 'diff', searchable: false, orderable: false, className: 'text-left' }
+                        ], [[0, 'desc']]); // Ordenar por Data (mais recentes) padrão
+                    };
+                    initAuditTable();
+                });
+            </script>
         </div>
     </div>
 </x-layouts.app>

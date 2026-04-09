@@ -23,62 +23,40 @@
 
         <div class="card bg-transparent border-0 shadow-none">
             <div class="card-body p-0">
-                <x-ui.table>
-                    <x-slot name="head">
-                        <tr>
-                            <th class="p-4 text-left">Código/PIN</th>
-                            <th class="p-4 text-left">Nome & Contato</th>
-                            <th class="p-4 text-left">Cargo</th>
-                            <th class="p-4 text-left">Salário Base</th>
-                            <th class="p-4 text-center">Status</th>
-                            <th class="p-4 text-right">Ações</th>
-                        </tr>
-                    </x-slot>
-                    <x-slot name="body">
-                        @forelse($employees as $emp)
-                        <tr class="border-b transition hover:bg-slate-50">
-                            <td class="p-4 text-sm">
-                                <span class="text-slate-800 font-bold">#{{ str_pad($emp->id, 3, '0', STR_PAD_LEFT) }}</span><br>
-                                <span class="text-slate-500 font-mono text-xs">PIN: {{ $emp->pin ?? 'N/A' }}</span>
-                            </td>
-                            <td class="p-4">
-                                <div class="font-bold text-slate-800">{{ $emp->name }}</div>
-                                <div class="text-slate-500 text-xs mt-1">CPF: {{ $emp->cpf ?: 'Não Informado' }}</div>
-                            </td>
-                            <td class="p-4 text-sm text-slate-700">
-                                {{ $emp->role_description ?? 'Operador Padrão' }}<br>
-                                <span class="text-xs text-slate-400">Admissão: {{ $emp->admission_date ? $emp->admission_date->format('d/m/Y') : '--' }}</span>
-                            </td>
-                            <td class="p-4 text-sm font-bold text-slate-800">
-                                R$ {{ number_format($emp->base_salary_cents / 100, 2, ',', '.') }}
-                            </td>
-                            <td class="p-4 text-center">
-                                @if($emp->status == 1)
-                                    <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: bold; background: #d1fae5; color: #065f46;">Ativo</span>
-                                @else
-                                    <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: bold; background: #ffe4e6; color: #9f1239;">Desligado</span>
-                                @endif
-                            </td>
-                            <td class="p-4 text-right">
-                                <a href="{{ route('hr.employees.edit', $emp->id) }}" class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
-                                    Editar
-                                </a>
-                                <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" id="remove-emp-{{ $emp->id }}" style="display: inline-block; margin-left: 0.5rem;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" onclick="confirmRemoval({{ $emp->id }})" class="btn" style="background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: bold;">
-                                        Desligar
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="p-8 text-center text-slate-500">Nenhum funcionário cadastrado.</td>
-                        </tr>
-                        @endforelse
-                    </x-slot>
-                </x-ui.table>
+                <div style="overflow-x: auto; padding: 1.5rem;">
+                    <table class="display responsive nowrap w-100" id="hr-employees-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                                <th style="padding: 1rem; text-align: left;">Código/PIN</th>
+                                <th style="padding: 1rem; text-align: left;">Nome & Contato</th>
+                                <th style="padding: 1rem; text-align: left;">Cargo</th>
+                                <th style="padding: 1rem; text-align: left;">Salário Base</th>
+                                <th style="padding: 1rem; text-align: center;">Status</th>
+                                <th style="padding: 1rem; text-align: right;">Ações</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const initHrTable = () => {
+                            if (typeof window.AppServerTable !== 'function') {
+                                setTimeout(initHrTable, 100);
+                                return;
+                            }
+                            new window.AppServerTable('#hr-employees-table', '{{ route('hr.employees.datatable') }}', [
+                                { data: 'codigo', name: 'id', searchable: true },
+                                { data: 'nome', name: 'name', searchable: true },
+                                { data: 'cargo', name: 'role_description', searchable: true, orderable: false },
+                                { data: 'salario', name: 'base_salary_cents', searchable: false, orderable: false },
+                                { data: 'status_html', name: 'status', searchable: false, className: 'text-center' },
+                                { data: 'acoes', searchable: false, orderable: false, className: 'text-right' }
+                            ], [[1, 'asc']]);
+                        };
+                        initHrTable();
+                    });
+                </script>
             </div>
         </div>
     </div>

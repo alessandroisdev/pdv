@@ -17,8 +17,61 @@ class PurchaseOrderController extends Controller
 {
     public function index()
     {
-        $orders = PurchaseOrder::with(['supplier', 'items'])->orderBy('id', 'desc')->get();
-        return view('purchasing::orders.index', compact('orders'));
+        return view('purchasing::orders.index');
+    }
+
+    public function datatable(Request $request)
+    {
+        $query = PurchaseOrder::with(['supplier', 'items'])->select('purchase_orders.*');
+        return response()->json(
+            \App\Services\DataTableService::process(
+                $query, $request,
+                ['invoice_number'], // Supplier Name search would require join, so limit text search to invoice_number
+                function ($order) {
+                    $pedidoHtml = "<strong style='color:#1e293b;'>#" . str_pad($order->id, 5, '0', STR_PAD_LEFT) . "</strong>
+                                   <div class='text-light mt-1' style='font-size:0.75rem;'>NF: " . ($order->invoice_number ?? 'Sem Nota') . "</div>";
+
+                    $fornecedorHtml = "<span style='font-weight:600; color:#455073;'>" . ($order->supplier->company_name ?? 'Desconhecido') . "</span>";
+
+                    if ($order->status === 'RECEIVED') {
+                        $dtAttr = $order->received_at ? $order->received_at->format('d/m/y H:i') : '';
+                        $statusHtml = "<div style='text-align:center;'><span style='background-color:#d1fae5; color:#047857; font-size:0.75rem; font-weight:bold; padding:2px 6px; border-radius:4px;'>RECEBIDO</span>
+                                       <div style='font-size:0.75rem; color:#059669; margin-top:4px;' title='Entrou no estoque'>{$dtAttr}</div></div>";
+                    } elseif ($order->status === 'PENDING') {
+                        $statusHtml = "<div style='text-align:center;'><span style='background-color:#fef3c7; color:#92400e; font-size:0.75rem; font-weight:bold; padding:2px 6px; border-radius:4px;'>RASCUNHO / EM TRÂNSITO</span></div>";
+                    } else {
+                        $statusHtml = "<div style='text-align:center;'><span style='background-color:#f1f5f9; color:#1e293b; font-size:0.75rem; font-weight:bold; padding:2px 6px; border-radius:4px;'>{$order->status}</span></div>";
+                    }
+
+                    $qtdHtml = "<div style='text-align:center; color:#64748b;'>" . $order->items->count() . " Lote(s)</div>";
+                    
+                    $money = new \App\Modules\Core\ValueObjects\Money($order->total_cents);
+                    $totalHtml = "<div style='font-weight:bold; color:#1e293b;'>{$money}</div>";
+
+                    if ($order->status === 'PENDING') {
+                        $btnUrl = route('purchasing.orders.receive', $order->id);
+                        $csrf = csrf_token();
+                        $acaoHtml = "<form action='{$btnUrl}' method='POST' id='receive-form-{$order->id}'>
+                                        <input type='hidden' name='_token' value='{$csrf}'>
+                                        <button type='button' onclick='confirmReceive({$order->id})' class='btn' style='background-color:#059669; color:white; padding:0.25rem 0.75rem; font-size:0.875rem; border:none;'>
+                                            <i class='fa fa-arrow-down' style='font-size:10px;'></i> Entrada
+                                        </button>
+                                     </form>";
+                    } else {
+                        $acaoHtml = "<button disabled class='btn btn-outline' style='padding: 0.25rem 0.75rem; font-size: 0.875rem; opacity: 0.5;' title='Apenas visualização em auditoria futura'>Fechado</button>";
+                    }
+
+                    return [
+                        'pedido' => $pedidoHtml,
+                        'fornecedor' => $fornecedorHtml,
+                        'status' => $statusHtml,
+                        'qtd' => $qtdHtml,
+                        'total' => $totalHtml,
+                        'acoes' => $acaoHtml
+                    ];
+                }
+            )
+        );
     }
 
     public function create()

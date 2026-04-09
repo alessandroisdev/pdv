@@ -11,8 +11,33 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::with('parent')->orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
         return view('inventory::categories.index', compact('categories'));
+    }
+
+    public function datatable(Request $request)
+    {
+        $query = Category::with('parent')->select('categories.*');
+
+        return response()->json(
+            \App\Services\DataTableService::process(
+                $query,
+                $request,
+                ['name'],
+                function ($category) {
+                    $parent = $category->parent ? "<span style='background:#e0f2fe; color:#0284c7; padding:0.25rem 0.5rem; border-radius:0.25rem; font-size:0.75rem; font-weight:bold;'>{$category->parent->name}</span>" : "<span style='color:#94a3b8; font-style:italic; font-size:0.85rem;'>Categoria Raiz Principal</span>";
+                    
+                    $btnEdit = "<button onclick=\"editCat({$category->id}, '".addslashes($category->name)."', '{$category->parent_id}')\" class=\"btn btn-sm btn-outline\" style=\"border-color: #cbd5e1; color: #475569;\">Editar</button>";
+                    
+                    $btnDel = "<form action='".route('inventory.categories.destroy', $category->id)."' method='POST' onsubmit=\"return confirm('Tem certeza? Isso pode afetar o cadastro de produtos.')\" style='display:inline;'><input type='hidden' name='_token' value='".csrf_token()."'><input type='hidden' name='_method' value='DELETE'><button type='submit' class='btn btn-sm' style='background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;'>Excluir</button></form>";
+
+                    return [
+                        'parent_html' => $parent,
+                        'acoes' => "<div style='display:flex; justify-content:flex-end; gap:0.5rem;'>{$btnEdit}{$btnDel}</div>"
+                    ];
+                }
+            )
+        );
     }
 
     public function store(Request $request)

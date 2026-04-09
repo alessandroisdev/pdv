@@ -78,79 +78,48 @@
                 <a href="{{ route('finance.installments.index', ['type' => 'RECEIVABLE']) }}" class="btn {{ request('type') == 'RECEIVABLE' ? 'btn-primary' : 'btn-outline' }}" style="padding: 0.25rem 1rem; border-radius: 999px; {{ request('type') == 'RECEIVABLE' ? 'background: #10b981; border-color: #10b981;' : '' }}">Só A Receber</a>
             </div>
 
-            <x-ui.table>
-                <x-slot:head>
-                    <th>Tipo</th>
-                    <th>Descrição do Título</th>
-                    <th>Valor</th>
-                    <th>Vencimento</th>
-                    <th>Status / Pagamento</th>
-                    <th style="text-align: right;">Ação</th>
-                </x-slot:head>
-                
-                @forelse($installments as $inst)
-                    @php
-                        $isOverdue = $inst->status === 'PENDING' && $inst->due_date->isPast();
-                    @endphp
-                    <tr style="{{ $isOverdue ? 'background: rgba(255, 228, 230, 0.4);' : '' }}">
-                        <td>
-                            @if($inst->type === 'PAYABLE')
-                                <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3;">A PAGAR</span>
-                            @else
-                                <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #d1fae5; color: #047857; border: 1px solid #a7f3d0;">A RECEBER</span>
-                            @endif
-                        </td>
-                        <td style="font-weight: 500; color: #1e293b;">
-                            {{ $inst->description }}
-                        </td>
-                        <td style="font-family: monospace; font-weight: bold; color: #334155;">
-                            {{ new App\Modules\Core\ValueObjects\Money($inst->amount_cents) }}
-                        </td>
-                        <td>
-                            <div style="{{ $isOverdue ? 'color: #e11d48; font-weight: bold;' : 'color: #475569;' }}">
-                                {{ $inst->due_date->format('d/m/Y') }}
-                                @if($isOverdue)
-                                    <i class="fa fa-exclamation-circle" style="margin-left: 0.25rem;"></i>
-                                @endif
-                            </div>
-                        </td>
-                        <td>
-                            @if($inst->status === 'PAID')
-                                <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #d1fae5; color: #047857;">PAGO EM {{ $inst->paid_date->format('d/m/y') }}</span>
-                            @else
-                                <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #fef3c7; color: #b45309;">PENDENTE</span>
-                            @endif
-                            
-                            @if($inst->transaction_id)
-                                <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 0.25rem;">Ref Livro Razão: #{{ $inst->transaction_id }}</div>
-                            @endif
-                        </td>
-                        <td style="text-align: right;">
-                            @if($inst->status === 'PENDING')
-                                <form action="{{ route('finance.installments.pay', $inst) }}" method="POST" onsubmit="return confirm('Deseja dar a baixa neste título? O valor entrará/sairá do Livro Razão (Caixa).')">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: bold; color: #4f46e5; border-color: #c7d2fe;">
-                                        <i class="fa fa-check-circle"></i> Dar Baixa
-                                    </button>
-                                </form>
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" style="padding: 3rem; text-align: center; color: #64748b;">
-                            <div style="font-size: 2.25rem; margin-bottom: 1rem; color: #cbd5e1;"><i class="fa fa-calendar-check"></i></div>
-                            <p>Nenhum título lançado na tesouraria.</p>
-                        </td>
-                    </tr>
-                @endforelse
-            </x-ui.table>
-            
-            @if($installments->hasPages())
-                <div style="padding: 1rem; border-top: 1px solid #e2e8f0; background: #f8fafc;">
-                    {{ $installments->appends(request()->all())->links() }}
-                </div>
-            @endif
+            <!-- Tabela Server Side TS -->
+            <div style="overflow-x: auto; padding: 1.5rem;">
+                <table class="display responsive nowrap w-100" id="finance-installments-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                            <th style="padding: 1rem; text-align: left;">Tipo</th>
+                            <th style="padding: 1rem; text-align: left;">Descrição do Título</th>
+                            <th style="padding: 1rem; text-align: left;">Valor</th>
+                            <th style="padding: 1rem; text-align: left;">Vencimento</th>
+                            <th style="padding: 1rem; text-align: left;">Status / Pagamento</th>
+                            <th style="padding: 1rem; text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const initInstTable = () => {
+                        if (typeof window.AppServerTable !== 'function') {
+                            setTimeout(initInstTable, 100);
+                            return;
+                        }
+                        
+                        // Capturando os Query Params no frontend pra puxar o Filter (A PAGAR, RECEBER, TODOS)
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const typeFilter = urlParams.get('type') || '';
+
+                        const ajaxUrl = '{{ route('finance.installments.datatable') }}' + (typeFilter ? '?type=' + typeFilter : '');
+
+                        new window.AppServerTable('#finance-installments-table', ajaxUrl, [
+                            { data: 'tipo', name: 'type', searchable: false },
+                            { data: 'descricao', name: 'description', searchable: true },
+                            { data: 'valor', name: 'amount_cents', searchable: false, orderable: false },
+                            { data: 'vencimento', name: 'due_date', searchable: false },
+                            { data: 'status', name: 'status', searchable: false, orderable: false },
+                            { data: 'acoes', searchable: false, orderable: false, className: 'text-right' }
+                        ], [[3, 'asc']]); // Default: Ordenar por Vencimento ASC
+                    };
+                    initInstTable();
+                });
+            </script>
         </x-ui.card>
     </div>
 </x-layouts.app>

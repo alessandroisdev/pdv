@@ -8,7 +8,7 @@
 
     <div class="card">
         <div class="card-body" style="padding: 0; overflow-x: auto;">
-            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+            <table class="display responsive nowrap w-100" id="purchasing-suppliers-table" style="width: 100%; text-align: left; border-collapse: collapse;">
                 <thead>
                     <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
                         <th style="padding: 1rem; text-align: left;">Razão Social (Empresa)</th>
@@ -17,34 +17,26 @@
                         <th style="padding: 1rem; text-align: left;">Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($suppliers as $supplier)
-                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
-                        <td style="padding: 1rem;">
-                            <strong style="color: #1e293b;">{{ $supplier->company_name }}</strong><br>
-                            <small class="text-light">{{ $supplier->trade_name ?? '---' }}</small>
-                        </td>
-                        <td style="padding: 1rem;">{{ $supplier->cnpj_cpf }}</td>
-                        <td style="padding: 1rem;">
-                            <div>{{ $supplier->email ?? 'Sem E-mail' }}</div>
-                            <div class="text-light text-sm">{{ $supplier->phone ?? 'Sem Telefone' }}</div>
-                        </td>
-                        <td style="padding: 1rem;">
-                            @if($supplier->is_active)
-                                <span style="background-color: #d1fae5; color: #047857; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px;">ATIVO</span>
-                            @else
-                                <span style="background-color: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px;">INATIVO</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" style="padding: 2rem; text-align: center; color: #64748b;">Nenhum fornecedor logístico cadastrado.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
             </table>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const initSuppTable = () => {
+                    if (typeof window.AppServerTable !== 'function') {
+                        setTimeout(initSuppTable, 100);
+                        return;
+                    }
+                    new window.AppServerTable('#purchasing-suppliers-table', '{{ route('purchasing.suppliers.datatable') }}', [
+                        { data: 'razao', name: 'company_name', searchable: true },
+                        { data: 'documento', name: 'cnpj_cpf', searchable: true },
+                        { data: 'contato', name: 'email', searchable: true },
+                        { data: 'status', searchable: false, orderable: false }
+                    ], [[0, 'asc']]);
+                };
+                initSuppTable();
+            });
+        </script>
     </div>
 
     <!-- Modal Novo Fornecedor -->

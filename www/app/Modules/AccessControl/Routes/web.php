@@ -20,4 +20,5 @@ Route::middleware('web')->group(function () {
 
     // Módulo de Auditoria Global de Segurança
     Route::get('/auditoria', [\App\Modules\AccessControl\Http\Controllers\AuditController::class, 'index'])->name('audit.index');
+    Route::post('/auditoria/datatable', [\App\Modules\AccessControl\Http\Controllers\AuditController::class, 'datatable'])->name('audit.datatable');
 });

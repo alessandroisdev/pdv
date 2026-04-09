@@ -7,6 +7,7 @@ use App\Modules\Inventory\Http\Controllers\LabelController;
 
 Route::middleware(['web', 'auth'])->prefix('estoque')->name('inventory.')->group(function () {
     Route::get('/produtos', [ProductController::class, 'index'])->name('products.index');
+    Route::post('/produtos/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
     Route::get('/produtos/novo', [ProductController::class, 'create'])->name('products.create');
     Route::post('/produtos', [ProductController::class, 'store'])->name('products.store');
     Route::get('/produtos/{product}/editar', [ProductController::class, 'edit'])->name('products.edit');
@@ -14,9 +15,11 @@ Route::middleware(['web', 'auth'])->prefix('estoque')->name('inventory.')->group
     
     // Contabilidade Física (Livro-Razão)
     Route::get('/produtos/{product}/estoque', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'index'])->name('products.stock');
+    Route::post('/produtos/{product}/estoque/datatable', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'datatable'])->name('products.stock.datatable');
     Route::post('/produtos/{product}/estoque', [\App\Modules\Inventory\Http\Controllers\StockMovementController::class, 'store'])->name('products.stock.store');
     
     Route::get('/categorias', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categorias/datatable', [CategoryController::class, 'datatable'])->name('categories.datatable');
     Route::post('/categorias', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('/categorias/{id}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categorias/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');

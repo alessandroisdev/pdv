@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import './ui/DataTable';
 
 declare global {
     interface Window {

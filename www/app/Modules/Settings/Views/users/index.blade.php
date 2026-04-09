@@ -14,111 +14,84 @@
         </div>
 
         <div class="card bg-white border-0 shadow-sm p-0 overflow-hidden" style="border-radius: 0.75rem;">
-            <x-ui.table>
-                <x-slot name="head">
-                    <tr>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Identificação</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">E-mail</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Hierarquia</th>
-                        <th class="p-4 text-right font-semibold" style="padding: 1rem;">Ações</th>
-                    </tr>
-                </x-slot>
-                <x-slot name="body">
-                    @foreach($users as $u)
-                        <tr class="border-b transition hover:bg-slate-50" style="border-bottom: 1px solid #f1f5f9;">
-                            <td class="p-4" style="padding: 1rem;">
-                                <div style="font-weight: bold; color: #1e293b;">{{ $u->name }}</div>
-                                <div style="font-size: 0.75rem; color: #94a3b8;">Desde {{ $u->created_at->format('d/m/Y') }}</div>
-                            </td>
-                            <td class="p-4 text-slate-600" style="padding: 1rem;">
-                                {{ $u->email }}
-                            </td>
-                            <td class="p-4" style="padding: 1rem;">
-                                @if($u->role === 'MANAGER')
-                                    <span style="display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: bold; background: #e0e7ff; color: #4338ca;">
-                                        <i class="fa fa-shield-alt mr-1"></i> GESTOR
-                                    </span>
-                                @else
-                                    <span style="display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: bold; background: #f1f5f9; color: #475569;">
-                                        CAIXISTA
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="p-4 text-right" style="padding: 1rem; text-align: right; white-space: nowrap;">
-                                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center;">
-                                    <button type="button" onclick="document.getElementById('modal-edit-user-{{ $u->id }}').showModal()" style="background: white; border: 1px solid #4338ca; color: #4338ca; padding: 0.35rem 0.75rem; border-radius: 0.35rem; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="Editar">
-                                        Editar
-                                    </button>
-
-                                    @if($u->id !== auth()->id())
-                                        <form action="{{ route('settings.users.destroy', $u) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Deseja excluir permanentemente este usuário? Removê-lo impedirá que o mesmo acesse o PDV.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" style="background: white; border: 1px solid #ef4444; color: #ef4444; padding: 0.35rem 0.75rem; border-radius: 0.35rem; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="Bloquear / Remover">
-                                                Remover
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span style="font-size: 0.75rem; color: #10b981; font-weight: bold; border: 1px solid #10b981; background: #ecfdf5; padding: 0.35rem 0.75rem; border-radius: 0.35rem; margin-left: 0.5rem;">
-                                            Sessão Atual
-                                        </span>
-                                    @endif
-                                </div>
-                            </td>
+            <div style="overflow-x: auto; padding: 1.5rem;">
+                <table class="display w-100" id="settings-users-table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #64748b;">
+                            <th style="padding: 1rem;">Identificação</th>
+                            <th style="padding: 1rem;">E-mail</th>
+                            <th style="padding: 1rem;">Hierarquia</th>
+                            <th style="padding: 1rem; text-align: right;">Ações</th>
                         </tr>
+                    </thead>
+                </table>
+            </div>
 
-                        <!-- Modal Edit User -->
-                        <dialog id="modal-edit-user-{{ $u->id }}" style="padding: 0; border: none; border-radius: 0.75rem; background: transparent; width: 100%; max-width: 32rem; position: fixed; inset: 0; margin: auto; z-index: 1050; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-                            <!-- Backdrop Blur Fix -->
-                            <div style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: -1;" onclick="document.getElementById('modal-edit-user-{{ $u->id }}').close()"></div>
-                            
-                            <div style="background: white; border-radius: 0.75rem; overflow: hidden; width: 100%;">
-                                <form action="{{ route('settings.users.update', $u) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <div style="padding: 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                                        <h3 style="font-size: 1.125rem; font-weight: bold; color: #1e293b; margin: 0;">Editar Conta: {{ explode(' ', $u->name)[0] }}</h3>
-                                        <button type="button" onclick="document.getElementById('modal-edit-user-{{ $u->id }}').close()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.25rem;"><i class="fa fa-times"></i></button>
-                                    </div>
-                                    
-                                    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-align: left;">
-                                        <div>
-                                            <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">Nome Completo</label>
-                                            <input type="text" name="name" value="{{ $u->name }}" required class="form-control" style="width: 100%; padding: 0.75rem;">
-                                        </div>
-                                        <div>
-                                            <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">E-mail de Login</label>
-                                            <input type="email" name="email" value="{{ $u->email }}" required class="form-control" style="width: 100%; padding: 0.75rem;">
-                                        </div>
-                                        <div>
-                                            <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">Nova Senha <span style="font-size: 0.7rem; color: #94a3b8; font-weight: normal;">(Opcional: preencha para alterar)</span></label>
-                                            <input type="password" name="password" class="form-control" style="width: 100%; padding: 0.75rem;">
-                                        </div>
-                                        <div>
-                                            <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">Nível de Acesso (Papel)</label>
-                                            <select name="role" required class="form-control" style="width: 100%; padding: 0.75rem;">
-                                                <option value="CASHIER" {{ $u->role == 'CASHIER' ? 'selected' : '' }}>Caixista / Operador de Loja</option>
-                                                <option value="MANAGER" {{ $u->role == 'MANAGER' ? 'selected' : '' }}>Gestor Administrativo (Configurações)</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div style="padding: 1.25rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.5rem;">
-                                        <button type="button" onclick="document.getElementById('modal-edit-user-{{ $u->id }}').close()" class="btn" style="background: white; border: 1px solid #cbd5e1; color: #475569; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer;">Cancelar</button>
-                                        <button type="submit" class="btn shadow" style="background: #4f46e5; border: none; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer;">Salvar Modificações</button>
-                                    </div>
-                                </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const initUsersTable = () => {
+                        if (typeof window.AppServerTable !== 'function') {
+                            setTimeout(initUsersTable, 100);
+                            return;
+                        }
+                        
+                        new window.AppServerTable('#settings-users-table', '{{ route('settings.users.datatable') }}', [
+                            { data: 'm_name', name: 'name', searchable: true },
+                            { data: 'email', searchable: true },
+                            { data: 'role', searchable: false },
+                            { data: 'acoes', searchable: false, orderable: false, className: 'text-right' }
+                        ], [[0, 'asc']]);
+                    };
+                    initUsersTable();
+                });
+            </script>
+
+            <!-- Render modals explicitly so JS logic can show them (Note: the list of modais requires a DB query anyway if not rendered via Ajax) -->
+            @php $allUsers = \App\Models\User::all(); @endphp
+            @foreach($allUsers as $u)
+                <!-- Modal Edit User -->
+                <dialog id="modal-edit-user-{{ $u->id }}" style="padding: 0; border: none; border-radius: 0.75rem; background: transparent; width: 100%; max-width: 32rem; position: fixed; inset: 0; margin: auto; z-index: 1050; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+                    <div style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: -1;" onclick="document.getElementById('modal-edit-user-{{ $u->id }}').close()"></div>
+                    
+                    <div style="background: white; border-radius: 0.75rem; overflow: hidden; width: 100%;">
+                        <form action="{{ route('settings.users.update', $u) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div style="padding: 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="font-size: 1.125rem; font-weight: bold; color: #1e293b; margin: 0;">Editar Conta: {{ explode(' ', $u->name)[0] }}</h3>
+                                <button type="button" onclick="document.getElementById('modal-edit-user-{{ $u->id }}').close()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.25rem;"><i class="fa fa-times"></i></button>
                             </div>
-                        </dialog>
-                    @endforeach
-                </x-slot>
-            </x-ui.table>
-            
-            @if($users->hasPages())
-                <div class="p-4" style="padding: 1rem; border-top: 1px solid #e2e8f0; background: #f8fafc;">
-                    {{ $users->links() }}
-                </div>
-            @endif
+                            
+                            <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+                                <div>
+                                    <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">Nome Completo</label>
+                                    <input type="text" name="name" value="{{ $u->name }}" required class="form-control" style="width: 100%; padding: 0.75rem;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">E-mail de Login</label>
+                                    <input type="email" name="email" value="{{ $u->email }}" required class="form-control" style="width: 100%; padding: 0.75rem;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">Nova Senha <span style="font-size: 0.7rem; color: #94a3b8; font-weight: normal;">(Opcional)</span></label>
+                                    <input type="password" name="password" class="form-control" style="width: 100%; padding: 0.75rem;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.875rem; font-weight: bold; color: #475569; margin-bottom: 0.5rem;">Nível de Acesso</label>
+                                    <select name="role" required class="form-control" style="width: 100%; padding: 0.75rem;">
+                                        <option value="CASHIER" {{ $u->role == 'CASHIER' ? 'selected' : '' }}>Caixista / Operador de Loja</option>
+                                        <option value="MANAGER" {{ $u->role == 'MANAGER' ? 'selected' : '' }}>Gestor Administrativo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 1.25rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.5rem;">
+                                <button type="button" onclick="document.getElementById('modal-edit-user-{{ $u->id }}').close()" class="btn" style="background: white; border: 1px solid #cbd5e1; color: #475569; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer;">Cancelar</button>
+                                <button type="submit" class="btn shadow" style="background: #4f46e5; border: none; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer;">Salvar Modificações</button>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
+            @endforeach
         </div>
     </div>
 

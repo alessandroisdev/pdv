@@ -25,10 +25,7 @@ class TransactionController extends Controller
      */
     public function index(Request $request)
     {
-        // Eager load polymorphic identities
-        $transactions = Transaction::with(['actor', 'source'])->latest()->paginate(20);
-        
-        // Sum total net balance
+        // Balance Sum
         $income = Transaction::where('type', 'INCOME')->sum('amount_cents');
         $expense = Transaction::where('type', 'EXPENSE')->sum('amount_cents');
         $balanceCents = $income - $expense;
@@ -45,6 +42,7 @@ class TransactionController extends Controller
         $caixasComDivergencia = \App\Modules\Sales\Models\CashRegister::where('difference_cents', '!=', 0)->latest()->take(5)->get();
 
         if ($request->wantsJson() || $request->is('api/*')) {
+            $transactions = Transaction::with(['actor', 'source'])->latest()->paginate(20);
             return response()->json([
                 'balance_cents' => $balanceCents,
                 'metrics' => [
@@ -58,7 +56,49 @@ class TransactionController extends Controller
             ]);
         }
 
-        return view('finance::transactions.index', compact('transactions', 'balanceCents', 'income', 'expense', 'todayIncome', 'ticketMedio', 'caixasComDivergencia'));
+        return view('finance::transactions.index', compact('balanceCents', 'income', 'expense', 'todayIncome', 'ticketMedio', 'caixasComDivergencia'));
+    }
+
+    public function datatable(Request $request)
+    {
+        $query = Transaction::with(['actor', 'source'])->select('transactions.*');
+
+        return response()->json(
+            \App\Services\DataTableService::process(
+                $query, $request,
+                ['description', 'payment_method', 'category'],
+                function ($tx) {
+                    $dateIdHtml = "<strong class='text-indigo-600'>#" . str_pad($tx->id, 5, '0', STR_PAD_LEFT) . "</strong><br><span class='text-xs'>{$tx->created_at->format('d/m/Y H:i')}</span>";
+
+                    $tipoBadge = $tx->type == 'INCOME'
+                        ? "<span class='inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-700'>ENTRADA</span>"
+                        : "<span class='inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-rose-100 text-rose-700'>SAÍDA</span>";
+                    $tipoHtml = "{$tipoBadge}<div class='text-xs font-bold text-slate-400 mt-1 uppercase'>VIA " . ($tx->payment_method ?? 'ND') . "</div>";
+
+                    if ($tx->source_type === \App\Modules\Sales\Models\Sale::class) {
+                        $origemHtml = "<div class='flex items-center gap-2'><div class='bg-slate-100 border border-slate-200 px-3 py-1 rounded-md text-sm text-slate-700'><i class='fa fa-shopping-cart text-slate-400 mr-2'></i> Transação Fechada em Balcão (PDV)</div></div><div class='text-xs text-slate-500 mt-1'>Vínculo Interno: Cupom de Venda #{$tx->source_id}</div>";
+                    } else {
+                        $origemHtml = "<span class='text-slate-500 italic text-sm'>Lançamento Manual Avulso / Interno</span>";
+                    }
+
+                    $autor = optional($tx->actor)->name ?? 'Sistema';
+                    $autorHtml = "<strong class='text-slate-800'>{$autor}</strong><br><span class='text-xs text-slate-500'>Operador</span>";
+
+                    $sinal = $tx->type == 'INCOME' ? '+' : '-';
+                    $color = $tx->type == 'INCOME' ? 'text-emerald-600' : 'text-rose-600';
+                    $valorFmt = "R$ " . number_format($tx->amount_cents / 100, 2, ',', '.');
+                    $montanteHtml = "<span class='text-lg font-bold tabular-nums {$color}'>{$sinal} {$valorFmt}</span>";
+
+                    return [
+                        'date_id' => $dateIdHtml,
+                        'tipo' => $tipoHtml,
+                        'origem' => $origemHtml,
+                        'autor' => $autorHtml,
+                        'montante' => $montanteHtml
+                    ];
+                }
+            )
+        );
     }
 
     /**

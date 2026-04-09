@@ -28,52 +28,56 @@
     <x-ui.card>
         <x-slot:header>Histórico de Status dos Caixas</x-slot:header>
         
-        <x-ui.table>
-            <x-slot:head>
-                <th>Turno #ID</th>
-                <th>Operador de Frente</th>
-                <th>Status Atual</th>
-                <th>Abertura</th>
-                <th>Fundo de Troco</th>
-                <th>Fechamento</th>
-                <th style="text-align: right;">Opções</th>
-            </x-slot:head>
-            
-            @forelse($registers as $register)
-                @php
-                    $isOpen = is_null($register->closed_at);
-                @endphp
-                <tr>
-                    <td>#{{ str_pad($register->id, 5, '0', STR_PAD_LEFT) }}</td>
-                    <td class="fw-semibold">{{ $register->operator->name ?? 'PDV User' }}</td>
-                    <td>
-                        <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; {{ $isOpen ? 'background: #dcfce7; color: #166534;' : 'background: #e2e8f0; color: #475569;' }}">
-                            {{ $isOpen ? 'ABERTO' : 'FECHADO' }}
-                        </span>
-                    </td>
-                    <td>{{ $register->opened_at->format('d/m/Y H:i') }}</td>
-                    <td class="fw-semibold text-emerald-600">R$ {{ number_format($register->initial_cents / 100, 2, ',', '.') }}</td>
-                    <td class="text-light">{{ $register->closed_at ? $register->closed_at->format('d/m/Y H:i') : '---' }}</td>
-                    <td style="text-align: right;">
-                        <a href="{{ route('sales.cash_registers.show', $register->id) }}" class="btn" style="padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; color: #455073; font-size: 0.75rem; text-decoration: none; display: inline-block;">Auditar</a>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="7" style="text-align: center; padding: 3rem;">
-                        <div style="color: #64748b; margin-bottom: 1rem;">
-                            <!-- Cash register SVG icon -->
-                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" style="margin: 0 auto;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        </div>
-                        <h4 style="font-size: 1.1rem; color: #455073; margin-bottom: 0.5rem;">Nenhum caixa foi registrado no sistema.</h4>
-                        <p style="color: #64748b; font-size: 0.9rem;">Para iniciar operaciones de venda, seus caixas precisarão ser abertos pelo Frente de Loja.</p>
-                    </td>
-                </tr>
-            @endforelse
-        </x-ui.table>
-        
-        <div style="margin-top: 1.5rem;">
-            {{ $registers->links() }}
+        <div style="overflow-x: auto;">
+            <table class="display responsive nowrap w-100" id="sales-registers-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                        <th style="padding: 1rem; text-align: left;">Turno #ID</th>
+                        <th style="padding: 1rem; text-align: left;">Operador de Frente</th>
+                        <th style="padding: 1rem; text-align: left;">Status Atual</th>
+                        <th style="padding: 1rem; text-align: left;">Abertura</th>
+                        <th style="padding: 1rem; text-align: left;">Fundo de Troco</th>
+                        <th style="padding: 1rem; text-align: left;">Fechamento</th>
+                        <th style="padding: 1rem; text-align: right;">Opções</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const initRegTable = () => {
+                    if (typeof window.AppServerTable !== 'function') {
+                        setTimeout(initRegTable, 100);
+                        return;
+                    }
+                    
+                    // Tratamento do Filtro Manual Superior
+                    let currentStatus = '';
+                    const selectStatus = document.querySelector('select.form-control');
+                    const btnFilter = document.querySelector('.btn-primary');
+                    
+                    let tableInstance = new window.AppServerTable('#sales-registers-table', '{{ route('sales.cash_registers.datatable') }}', [
+                        { data: 'turno', name: 'id', searchable: false },
+                        { data: 'operador', searchable: false, orderable: false },
+                        { data: 'status', searchable: false, orderable: false },
+                        { data: 'abertura', searchable: false, orderable: false },
+                        { data: 'fundo', searchable: false, orderable: false },
+                        { data: 'fechamento', searchable: false, orderable: false },
+                        { data: 'opcoes', searchable: false, orderable: false, className: 'text-right' }
+                    ], [[0, 'desc']]); // Ordernar ID Desc
+
+                    if (btnFilter) {
+                        btnFilter.addEventListener('click', () => {
+                            currentStatus = selectStatus.value;
+                            // Atualizar URL AJAX
+                            const newUrl = '{{ route('sales.cash_registers.datatable') }}' + (currentStatus ? '?status=' + currentStatus : '');
+                            tableInstance.dtInstance.ajax.url(newUrl).load();
+                        });
+                    }
+                };
+                initRegTable();
+            });
+        </script>
     </x-ui.card>
 </x-layouts.app>

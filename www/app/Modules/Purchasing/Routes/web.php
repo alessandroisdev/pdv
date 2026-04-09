@@ -5,9 +5,11 @@ use App\Modules\Purchasing\Http\Controllers\SupplierController;
 
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/fornecedores', [SupplierController::class, 'index'])->name('purchasing.suppliers.index');
+    Route::post('/fornecedores/datatable', [SupplierController::class, 'datatable'])->name('purchasing.suppliers.datatable');
     Route::post('/fornecedores', [SupplierController::class, 'store'])->name('purchasing.suppliers.store');
     
     Route::get('/compras/pedidos', [\App\Modules\Purchasing\Http\Controllers\PurchaseOrderController::class, 'index'])->name('purchasing.orders.index');
+    Route::post('/compras/pedidos/datatable', [\App\Modules\Purchasing\Http\Controllers\PurchaseOrderController::class, 'datatable'])->name('purchasing.orders.datatable');
     Route::get('/compras/pedidos/novo', [\App\Modules\Purchasing\Http\Controllers\PurchaseOrderController::class, 'create'])->name('purchasing.orders.create');
     Route::post('/compras/pedidos/salvar', [\App\Modules\Purchasing\Http\Controllers\PurchaseOrderController::class, 'store'])->name('purchasing.orders.store');
     Route::post('/compras/pedidos/{order}/receber', [\App\Modules\Purchasing\Http\Controllers\PurchaseOrderController::class, 'receive'])->name('purchasing.orders.receive');

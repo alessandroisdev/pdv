@@ -73,72 +73,39 @@
 
         <!-- Tabela Geral de Transações -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto p-6">
+                <table class="display responsive w-full" id="finance-transactions-table" style="width:100%; border-collapse:collapse;">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-sm">
-                            <th class="p-4 font-semibold w-1/10">ID / Data</th>
-                            <th class="p-4 font-semibold w-1/6">Tipo / Meio</th>
-                            <th class="p-4 font-semibold w-2/5">Origem Polimórfica (Recibo)</th>
-                            <th class="p-4 font-semibold w-1/5">Autoridade</th>
-                            <th class="p-4 font-semibold text-right w-1/6">Montante</th>
+                            <th class="p-4 font-semibold text-left">ID / Data</th>
+                            <th class="p-4 font-semibold text-left">Tipo / Meio</th>
+                            <th class="p-4 font-semibold text-left">Origem Polimórfica (Recibo)</th>
+                            <th class="p-4 font-semibold text-left">Autoridade</th>
+                            <th class="p-4 font-semibold text-right">Montante</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($transactions as $tx)
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="p-4 text-slate-500 tabular-nums">
-                                    <strong class="text-indigo-600">#{{ str_pad($tx->id, 5, '0', STR_PAD_LEFT) }}</strong><br>
-                                    <span class="text-xs">{{ $tx->created_at->format('d/m/Y H:i') }}</span>
-                                </td>
-                                
-                                <td class="p-4">
-                                    @if($tx->type == 'INCOME')
-                                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-700">ENTRADA</span>
-                                    @else
-                                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-rose-100 text-rose-700">SAÍDA</span>
-                                    @endif
-                                    <div class="text-xs font-bold text-slate-400 mt-1 uppercase">
-                                        VIA {{ $tx->payment_method ?? 'ND' }}
-                                    </div>
-                                </td>
-                                
-                                <td class="p-4">
-                                    @if($tx->source_type === \App\Modules\Sales\Models\Sale::class)
-                                        <div class="flex items-center gap-2">
-                                            <div class="bg-slate-100 border border-slate-200 px-3 py-1 rounded-md text-sm text-slate-700"><i class="fa fa-shopping-cart text-slate-400 mr-2"></i> Transação Fechada em Balcão (PDV)</div>
-                                        </div>
-                                        <div class="text-xs text-slate-500 mt-1">Vínculo Interno: Cupom de Venda #{{ $tx->source_id }}</div>
-                                    @else
-                                        <span class="text-slate-500 italic text-sm">Lançamento Manual Avulso</span>
-                                    @endif
-                                </td>
-                                
-                                <td class="p-4 text-sm">
-                                    <strong class="text-slate-800">{{ optional($tx->actor)->name ?? 'Sistema' }}</strong><br>
-                                    <span class="text-xs text-slate-500">Caixa Físico</span>
-                                </td>
-                                
-                                <td class="p-4 text-right text-lg font-bold tabular-nums {{ $tx->type == 'INCOME' ? 'text-emerald-600' : 'text-rose-600' }}">
-                                    {{ $tx->type == 'INCOME' ? '+' : '-' }} {{ clone $tx->amount }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="p-8 text-center text-slate-500">
-                                    <div class="text-4xl mb-4 text-slate-300 opacity-50"><i class="fa fa-shield"></i></div>
-                                    <strong class="text-slate-700 block text-lg mb-1">Nenhuma Transação Financeira!</strong>
-                                    <p class="text-sm">O Livro Razão está intacto e vazio. As vendas de Caixa ou Entradas Manuais ecoarão aqui.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
                 </table>
             </div>
 
-            <div class="p-4 border-t border-slate-200 bg-slate-50">
-                {{ $transactions->links() }}
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const initFinanceTable = () => {
+                        if (typeof window.AppServerTable !== 'function') {
+                            setTimeout(initFinanceTable, 100);
+                            return;
+                        }
+                        
+                        new window.AppServerTable('#finance-transactions-table', '{{ route('finance.transactions.datatable') }}', [
+                            { data: 'date_id', searchable: true },
+                            { data: 'tipo', searchable: false },
+                            { data: 'origem', searchable: false, orderable: false },
+                            { data: 'autor', searchable: false },
+                            { data: 'montante', searchable: false, className: 'text-right' }
+                        ], [[0, 'desc']]); // As financeiras ordenamos por Data decrescente (ID)
+                    };
+                    initFinanceTable();
+                });
+            </script>
         </div>
     </div>
 </x-layouts.app>

@@ -33,56 +33,37 @@
         @endif
 
         <div class="card bg-white border-0 shadow-sm p-0 overflow-hidden" style="border-radius: 0.75rem;">
-            <x-ui.table>
-                <x-slot name="head">
-                    <tr>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">ID</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Nome da Categoria</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Pertence À (Categoria Pai)</th>
-                        <th class="p-4 text-right font-semibold" style="padding: 1rem; width: 120px;">Ações</th>
-                    </tr>
-                </x-slot>
-                <x-slot name="body">
-                    @forelse($categories as $category)
-                        <tr class="border-b transition hover:bg-slate-50" style="border-bottom: 1px solid #f1f5f9;">
-                            <td class="p-4 text-slate-500" style="padding: 1rem;">#{{ $category->id }}</td>
-                            <td class="p-4 font-bold text-slate-800" style="padding: 1rem; color: #1e293b;">
-                                {{ $category->name }}
-                            </td>
-                            <td class="p-4 text-slate-600" style="padding: 1rem;">
-                                @if($category->parent)
-                                    <span style="background: #e0f2fe; color: #0284c7; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: bold;">
-                                        {{ $category->parent->name }}
-                                    </span>
-                                @else
-                                    <span style="color: #94a3b8; font-style: italic; font-size: 0.85rem;">Categoria Raiz Principal</span>
-                                @endif
-                            </td>
-                            <td class="p-4 text-right" style="padding: 1rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
-                                <button onclick="editCat({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ $category->parent_id }}')" class="btn btn-sm btn-outline" style="border-color: #cbd5e1; color: #475569;" title="Editar Categoria">
-                                    Editar
-                                </button>
-                                
-                                <form action="{{ route('inventory.categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Tem certeza? Isso pode afetar o cadastro de produtos que usam esta categoria. Se houver produtos, o sistema impedirá a exclusão.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm" style="background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;" title="Excluir Categoria">
-                                        Excluir
-                                    </button>
-                                </form>
-                            </td>
+            <div style="overflow-x: auto; padding: 1.5rem;">
+                <table class="display responsive nowrap w-100" id="categories-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                            <th style="padding: 1rem; text-align: left;">ID</th>
+                            <th style="padding: 1rem; text-align: left;">Nome da Categoria</th>
+                            <th style="padding: 1rem; text-align: left;">Pertence À (Categoria Pai)</th>
+                            <th style="padding: 1rem; text-align: right;">Ações</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="p-8 text-center text-slate-500" style="padding: 2rem; text-align: center; color: #64748b;">
-                                <div class="text-4xl mb-4 text-slate-300" style="font-size: 2.25rem; margin-bottom: 1rem; color: #cbd5e1;"><i class="fa fa-tags"></i></div>
-                                <p>Nenhuma categoria de produtos cadastrada.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </x-slot>
-            </x-ui.table>
+                    </thead>
+                </table>
+            </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const initCatTable = () => {
+                    if (typeof window.AppServerTable !== 'function') {
+                        setTimeout(initCatTable, 100);
+                        return;
+                    }
+                    new window.AppServerTable('#categories-table', '{{ route('inventory.categories.datatable') }}', [
+                        { data: 'id', render: function(d) { return `<span class="text-slate-500">#${d}</span>`; } },
+                        { data: 'name', className: "font-bold text-slate-800" },
+                        { data: 'parent_html', orderable: false, searchable: false },
+                        { data: 'acoes', orderable: false, searchable: false, className: "text-right" }
+                    ], [[1, 'asc']]); 
+                };
+                initCatTable();
+            });
+        </script>
 
         <!-- Modal de Gerenciamento -->
         <dialog id="inventory-category-modal" style="padding: 0; border: none; border-radius: 0.75rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 32rem; position: fixed; inset: 0; margin: auto; z-index: 9999;">

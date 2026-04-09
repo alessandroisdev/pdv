@@ -81,64 +81,40 @@
                         <h3 style="font-size: 1rem; font-weight: bold; color: #1e293b; margin: 0;"><i class="fa fa-history" style="color: #94a3b8; margin-right: 0.5rem;"></i> Histórico Crítico de Eventos</h3>
                     </div>
 
-                    <div style="padding: 0; overflow-x: auto;">
-                        <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <div style="padding: 1rem; overflow-x: auto;">
+                        <table class="display responsive nowrap w-100" id="stock-movements-table" style="width: 100%; text-align: left; border-collapse: collapse;">
                             <thead>
                                 <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.85rem;">
-                                    <th style="padding: 1rem;">Data/Hora</th>
-                                    <th style="padding: 1rem;">Módulo Motor</th>
-                                    <th style="padding: 1rem;">Justificativa / Motivo</th>
-                                    <th style="padding: 1rem;">Assinatura Contábil</th>
+                                    <th style="padding: 1rem; text-align: left;">Data/Hora</th>
+                                    <th style="padding: 1rem; text-align: left;">Módulo Motor</th>
+                                    <th style="padding: 1rem; text-align: left;">Justificativa / Motivo</th>
+                                    <th style="padding: 1rem; text-align: left;">Assinatura Contábil</th>
                                     <th style="padding: 1rem; text-align: right;">Mutação Fís.</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @forelse($movements as $mov)
-                                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
-                                        <td style="padding: 1rem; font-size: 0.85rem; color: #475569;">
-                                            {{ $mov->created_at ? $mov->created_at->format('d/m/Y H:i') : '--' }}
-                                        </td>
-                                        <td style="padding: 1rem;">
-                                            @if($mov->type === 'ADJUSTMENT')
-                                                <span style="font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: #e0e7ff; color: #4f46e5;">AJUSTE GERENCIAL</span>
-                                            @elseif($mov->type === 'SALE')
-                                                <span style="font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: #fef08a; color: #854d0e;">FRENTE CAIXA PDV</span>
-                                            @else
-                                                <span style="font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: #e2e8f0; color: #475569;">{{ $mov->type }}</span>
-                                            @endif
-                                        </td>
-                                        <td style="padding: 1rem; font-size: 0.85rem; font-weight: bold; color: #334155;">
-                                            {{ $mov->transaction_motive }}
-                                        </td>
-                                        <td style="padding: 1rem; font-size: 0.85rem; color: #64748b;">
-                                            {{ $mov->actor->name ?? 'Sistema' }}
-                                        </td>
-                                        <td style="padding: 1rem; text-align: right;">
-                                            <span style="display: inline-block; min-width: 3rem; text-align: center; font-weight: 900; padding: 4px 8px; border-radius: 6px; {{ $mov->quantity > 0 ? 'background: #d1fae5; color: #047857;' : 'background: #ffe4e6; color: #be123c;' }}">
-                                                {{ $mov->quantity > 0 ? '+' : '' }}{{ $mov->quantity }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" style="padding: 3rem; text-align: center;">
-                                            <div style="font-size: 2rem; color: #cbd5e1; margin-bottom: 0.5rem;">
-                                                <i class="fa fa-receipt"></i>
-                                            </div>
-                                            <p style="color: #64748b; font-size: 0.9rem; margin: 0;">Nenhuma movimentação lançada para este item.</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
                         </table>
                     </div>
-                    
-                    @if($movements->hasPages())
-                        <div style="padding: 1rem; border-top: 1px solid #e2e8f0; background-color: #f8fafc;">
-                            {{ $movements->links() }}
-                        </div>
-                    @endif
                 </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const initStockTable = () => {
+                            if (typeof window.AppServerTable !== 'function') {
+                                setTimeout(initStockTable, 100);
+                                return;
+                            }
+                            // Usando caminho literal fixo sem "route()" do blade devido a bugs de cache:
+                            new window.AppServerTable('#stock-movements-table', '/estoque/produtos/{{ $product->id }}/estoque/datatable', [
+                                { data: 'm_data', name: 'created_at', searchable: false },
+                                { data: 'modulo', name: 'type', searchable: false },
+                                { data: 'motivo', name: 'transaction_motive', searchable: true },
+                                { data: 'actor', searchable: false, orderable: false },
+                                { data: 'mutacao', name: 'quantity', searchable: false, className: 'text-right' }
+                            ], [[0, 'desc']]); // Fallback ordena criado recentemente
+                        };
+                        initStockTable();
+                    });
+                </script>
             </div>
 
         </div>

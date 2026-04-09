@@ -28,11 +28,53 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        $employees = Employee::orderBy('name')->get();
         if ($request->wantsJson() || $request->is('api/*')) {
+            $employees = Employee::orderBy('name')->get();
             return response()->json($employees);
         }
-        return view('hr::employees.index', compact('employees'));
+        return view('hr::employees.index');
+    }
+
+    public function datatable(Request $request)
+    {
+        $query = Employee::select('employees.*');
+
+        return response()->json(
+            \App\Services\DataTableService::process(
+                $query, $request,
+                ['name', 'cpf', 'role_description'],
+                function ($emp) {
+                    $idPad = str_pad($emp->id, 3, '0', STR_PAD_LEFT);
+                    $pinCode = $emp->pin ?? 'N/A';
+                    $codigoHtml = "<span class='text-slate-800 font-bold'>#{$idPad}</span><br><span class='text-slate-500 font-mono text-xs'>PIN: {$pinCode}</span>";
+
+                    $doc = $emp->cpf ?: 'Não Informado';
+                    $nomeHtml = "<div class='font-bold text-slate-800'>{$emp->name}</div><div class='text-slate-500 text-xs mt-1'>CPF: {$doc}</div>";
+
+                    $cargoDesc = $emp->role_description ?? 'Operador Padrão';
+                    $admissao = $emp->admission_date ? $emp->admission_date->format('d/m/Y') : '--';
+                    $cargoHtml = "{$cargoDesc}<br><span class='text-xs text-slate-400'>Admissão: {$admissao}</span>";
+
+                    $salarioHtml = "R$ " . number_format($emp->base_salary_cents / 100, 2, ',', '.');
+
+                    $statusHtml = $emp->status == 1 
+                        ? "<span style='display:inline-block; padding:0.25rem 0.5rem; border-radius:0.25rem; font-size:0.75rem; font-weight:bold; background:#d1fae5; color:#065f46;'>Ativo</span>"
+                        : "<span style='display:inline-block; padding:0.25rem 0.5rem; border-radius:0.25rem; font-size:0.75rem; font-weight:bold; background:#ffe4e6; color:#9f1239;'>Desligado</span>";
+
+                    $btnEdit = "<a href='".route('hr.employees.edit', $emp->id)."' class='btn btn-outline' style='padding:0.25rem 0.75rem; font-size:0.875rem;'>Editar</a>";
+                    $btnDel = "<form action='".route('hr.employees.destroy', $emp->id)."' method='POST' id='remove-emp-{$emp->id}' style='display:inline-block; margin-left:0.5rem;'><input type='hidden' name='_token' value='".csrf_token()."'><input type='hidden' name='_method' value='DELETE'><button type='button' onclick='confirmRemoval({$emp->id})' class='btn' style='background:#fff1f2; border:1px solid #fecdd3; color:#e11d48; padding:0.25rem 0.75rem; font-size:0.875rem; font-weight:bold;'>Desligar</button></form>";
+
+                    return [
+                        'codigo' => $codigoHtml,
+                        'nome' => $nomeHtml,
+                        'cargo' => $cargoHtml,
+                        'salario' => $salarioHtml,
+                        'status_html' => $statusHtml,
+                        'acoes' => $btnEdit . $btnDel
+                    ];
+                }
+            )
+        );
     }
 
     /**

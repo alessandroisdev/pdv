@@ -10,6 +10,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/configuracoes/printer/test', [\App\Modules\Settings\Http\Controllers\PrinterController::class, 'test'])->name('settings.printer.test');
 
     Route::get('/configuracoes/usuarios', [SystemUserController::class, 'index'])->name('settings.users.index');
+    Route::post('/configuracoes/usuarios/datatable', [SystemUserController::class, 'datatable'])->name('settings.users.datatable');
     Route::post('/configuracoes/usuarios', [SystemUserController::class, 'store'])->name('settings.users.store');
     Route::put('/configuracoes/usuarios/{user}', [SystemUserController::class, 'update'])->name('settings.users.update');
     Route::delete('/configuracoes/usuarios/{user}', [SystemUserController::class, 'destroy'])->name('settings.users.destroy');

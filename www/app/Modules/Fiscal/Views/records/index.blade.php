@@ -13,84 +13,41 @@
         </div>
 
         <div class="card bg-white border-0 shadow-sm p-0 overflow-hidden" style="border-radius: 0.75rem;">
-            <x-ui.table>
-                <x-slot name="head">
-                    <tr>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">ID / Venda</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Modelo</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Emissão</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Valor</th>
-                        <th class="p-4 text-left font-semibold" style="padding: 1rem;">Status / Recibo</th>
-                        <th class="p-4 text-right font-semibold" style="padding: 1rem;">Ações</th>
-                    </tr>
-                </x-slot>
-                <x-slot name="body">
-                    @forelse($documents as $doc)
-                        <tr class="border-b transition hover:bg-slate-50" style="border-bottom: 1px solid #f1f5f9;">
-                            <td class="p-4" style="padding: 1rem;">
-                                <div style="font-weight: bold; color: #334155;">#{{ $doc->id }}</div>
-                                <div style="font-size: 0.75rem; color: #94a3b8;">Venda: {{ $doc->sale_id }}</div>
-                            </td>
-                            <td class="p-4" style="padding: 1rem;">
-                                <span style="display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.7rem; font-weight: bold; background: #f1f5f9; color: #1e293b;">
-                                    {{ $doc->document_type ?? 'NFC-E' }}
-                                </span>
-                            </td>
-                            <td class="p-4 text-sm text-slate-600" style="padding: 1rem;">
-                                {{ $doc->created_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="p-4 font-mono font-medium text-slate-700" style="padding: 1rem; font-family: monospace;">
-                                @if($doc->sale)
-                                    {{ new App\Modules\Core\ValueObjects\Money($doc->sale->total_cents) }}
-                                @else
-                                    ---
-                                @endif
-                            </td>
-                            <td class="p-4" style="padding: 1rem;">
-                                @php
-                                    $bg = '#f1f5f9'; $color = '#475569'; $border = '#cbd5e1';
-                                    if($doc->status === 'AUTORIZADO') { $bg = '#ecfdf5'; $color = '#047857'; $border = '#a7f3d0'; }
-                                    if($doc->status === 'CONTINGENCIA_OFFLINE') { $bg = '#fffbeb'; $color = '#b45309'; $border = '#fde68a'; }
-                                    if($doc->status === 'CANCELADO') { $bg = '#fef2f2'; $color = '#b91c1c'; $border = '#fecaca'; }
-                                @endphp
-                                <span style="display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.7rem; font-weight: bold; background: {{ $bg }}; color: {{ $color }}; border: 1px solid {{ $border }};">
-                                    {{ $doc->status }}
-                                </span>
-                                @if($doc->protocol_number)
-                                    <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 0.25rem; font-family: monospace;">Prot: {{ $doc->protocol_number }}</div>
-                                @endif
-                            </td>
-                            <td class="p-4 text-right" style="padding: 1rem; text-align: right;">
-                                <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                                    @if($doc->status !== 'CANCELADO')
-                                    <button type="button" onclick="confirmCancel({{ $doc->id }})" class="btn text-danger transition-colors" style="background: transparent; border: 1px solid transparent; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: bold; cursor: pointer;" title="Cancelar Nota">
-                                        <i class="fa fa-ban text-danger"></i>
-                                    </button>
-                                    @endif
-                                </div>
-                                
-                                <form id="cancel-form-{{ $doc->id }}" action="{{ route('fiscal.records.cancel', $doc->id) }}" method="POST" style="display: none;">
-                                    @csrf
-                                    <input type="hidden" name="reason" id="cancel-reason-{{ $doc->id }}" value="Erro operacional local">
-                                </form>
-                            </td>
+            <div style="overflow-x: auto; padding: 1.5rem;">
+                <table class="display responsive nowrap w-100" id="fiscal-records-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                            <th style="padding: 1rem; text-align: left;">ID / Venda</th>
+                            <th style="padding: 1rem; text-align: left;">Modelo</th>
+                            <th style="padding: 1rem; text-align: left;">Emissão</th>
+                            <th style="padding: 1rem; text-align: left;">Valor</th>
+                            <th style="padding: 1rem; text-align: left;">Status / Recibo</th>
+                            <th style="padding: 1rem; text-align: right;">Ações</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" style="padding: 4rem; text-align: center; color: #94a3b8;">
-                                <div style="font-size: 4rem; margin-bottom: 1rem;">🧾</div>
-                                <p style="font-weight: bold;">Nenhum documento fiscal registrado ainda.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </x-slot>
-            </x-ui.table>
-            
-            @if($documents->hasPages())
-                <div class="p-4" style="padding: 1rem; border-top: 1px solid #e2e8f0; background: #f8fafc;">
-                    {{ $documents->links() }}
-                </div>
-            @endif
+                    </thead>
+                </table>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const initFiscalTable = () => {
+                        if (typeof window.AppServerTable !== 'function') {
+                            setTimeout(initFiscalTable, 100);
+                            return;
+                        }
+                        
+                        new window.AppServerTable('#fiscal-records-table', '{{ route('fiscal.records.datatable') }}', [
+                            { data: 'id_venda', name: 'id', searchable: true },
+                            { data: 'modelo', name: 'document_type', searchable: false },
+                            { data: 'emissao', name: 'created_at', searchable: false },
+                            { data: 'valor', searchable: false, orderable: false },
+                            { data: 'status', name: 'status', searchable: true },
+                            { data: 'acoes', searchable: false, orderable: false, className: 'text-right' }
+                        ], [[0, 'desc']]); // Ordenar por ID descendente
+                    };
+                    initFiscalTable();
+                });
+            </script>
         </div>
     </div>
 

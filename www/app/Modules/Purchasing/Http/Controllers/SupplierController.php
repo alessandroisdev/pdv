@@ -25,11 +25,43 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        $suppliers = Supplier::orderBy('company_name')->get();
         if ($request->wantsJson() || $request->is('api/*')) {
+            $suppliers = Supplier::orderBy('company_name')->get();
             return response()->json($suppliers);
         }
-        return view('purchasing::suppliers.index', compact('suppliers'));
+        return view('purchasing::suppliers.index');
+    }
+
+    public function datatable(Request $request)
+    {
+        $query = Supplier::select('suppliers.*');
+
+        return response()->json(
+            \App\Services\DataTableService::process(
+                $query, $request,
+                ['company_name', 'trade_name', 'cnpj_cpf', 'email', 'phone'],
+                function ($supplier) {
+                    $razaoHtml = "  <strong style='color:#1e293b;'>{$supplier->company_name}</strong><br>
+                                    <small class='text-light'>" . ($supplier->trade_name ?? '---') . "</small>";
+                    
+                    $cnpjCpf = $supplier->cnpj_cpf;
+
+                    $contatoHtml = "<div>" . ($supplier->email ?? 'Sem E-mail') . "</div>
+                                    <div class='text-light text-sm'>" . ($supplier->phone ?? 'Sem Telefone') . "</div>";
+
+                    $statusBadge = $supplier->is_active
+                        ? "<span style='background-color:#d1fae5; color:#047857; font-size:0.75rem; font-weight:bold; padding:2px 6px; border-radius:4px;'>ATIVO</span>"
+                        : "<span style='background-color:#f1f5f9; color:#475569; font-size:0.75rem; font-weight:bold; padding:2px 6px; border-radius:4px;'>INATIVO</span>";
+
+                    return [
+                        'razao' => $razaoHtml,
+                        'documento' => $cnpjCpf,
+                        'contato' => $contatoHtml,
+                        'status' => $statusBadge,
+                    ];
+                }
+            )
+        );
     }
 
     /**

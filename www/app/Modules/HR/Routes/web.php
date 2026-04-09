@@ -4,6 +4,7 @@ use App\Modules\HR\Http\Controllers\EmployeeController;
 
 Route::middleware(['web', 'auth'])->prefix('hr')->name('hr.')->group(function () {
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::post('/employees/datatable', [EmployeeController::class, 'datatable'])->name('employees.datatable');
     Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
     Route::get('/employees/{id}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
     Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('employees.update');

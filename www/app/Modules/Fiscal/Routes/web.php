@@ -6,6 +6,7 @@ use App\Modules\Fiscal\Http\Controllers\RecordController;
 
 Route::middleware(['web', 'auth'])->prefix('fiscal')->name('fiscal.')->group(function () {
     Route::get('/records', [RecordController::class, 'index'])->name('records.index');
+    Route::post('/records/datatable', [RecordController::class, 'datatable'])->name('records.datatable');
     Route::post('/records/{document}/cancel', [RecordController::class, 'cancel'])->name('records.cancel');
 
     Route::get('/sandbox/transmit', [TestEngineController::class, 'sandbox'])->name('sandbox');
