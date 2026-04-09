@@ -23,11 +23,11 @@
     @endif
 
     <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
-        @media (min-width: 1024px) {
-            <style>
+        <style>
+            @media (min-width: 1024px) {
                 .stock-grid { grid-template-columns: 350px 1fr !important; }
-            </style>
-        }
+            }
+        </style>
         
         <div class="stock-grid" style="display: grid; gap: 2rem; grid-template-columns: 1fr;">
             
