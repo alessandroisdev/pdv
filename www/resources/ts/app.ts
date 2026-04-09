@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import '../js/echo';
 import './ui/DataTable';
 
 declare global {

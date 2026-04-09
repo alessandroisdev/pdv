@@ -4,9 +4,12 @@ namespace App\Modules\Sales\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\Core\ValueObjects\Money;
+use App\Modules\Core\Traits\HasBranchScope;
 
 class Sale extends Model
 {
+    use HasBranchScope;
+
     protected $fillable = [
         'cash_register_id',
         'seller_id',
@@ -15,6 +18,7 @@ class Sale extends Model
         'customer_document',
         'total_cents',
         'discount_cents',
+        'branch_id',
     ];
 
     public function cashRegister()

@@ -214,20 +214,14 @@ class PointOfSaleController extends Controller
             $transaction->source_id = $sale->id;
             $transaction->save();
 
-            // 5. Integração Fiscal (Sefaz)
-            // Lançamos ANTES do commit. Se falhar, o estoque é devolvido (rollback cai no catch)
-            $fiscalDoc = $this->nfeService->transmitMockSale($sale);
-
-            // Salvar e Confirmar DB (A partir daqui o dinheiro e estoque são irreversíveis nativamente)
+            // 5. Salvar e Confirmar DB (A partir daqui o dinheiro e estoque são irreversíveis nativamente)
             DB::commit();
 
-            // 6. Integração Hardware (Impressora Minitérmica TCP)
-            $this->printerService->printReceipt($sale, $fiscalDoc);
+            // 6. Integração Assíncrona de Emissão Fiscal (Job / Horizon)
+            // Lançamos nas Filas do Redis para evitar Timeout na tela do operador!
+            \App\Jobs\ProcessFiscalDocumentDispatch::dispatch($sale);
 
-            $statusText = "Baixa de Estoque Realizada. " . format_money($calculatedTotal) . " recebidos. Recibo enviado para impressora!";
-            if ($fiscalDoc->status === 'CONTINGENCIA_OFFLINE') {
-                $statusText .= " (Aviso: Sefaz Inalcançável, NFC-e gravada em contingência).";
-            }
+            $statusText = "Baixa de Estoque Realizada. " . format_money($calculatedTotal) . " recebidos. A NFC-e está sendo processada em segundo plano e chegará no seu terminal!";
 
             return redirect()->route($this->getBoardRoute($request))
                    ->with('sale_id', $sale->id)

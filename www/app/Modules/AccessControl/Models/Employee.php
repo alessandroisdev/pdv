@@ -5,10 +5,11 @@ namespace App\Modules\AccessControl\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
+use App\Modules\Core\Traits\HasBranchScope;
 
 class Employee extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use SoftDeletes, \OwenIt\Auditing\Auditable;
+    use SoftDeletes, \OwenIt\Auditing\Auditable, HasBranchScope;
 
     protected $fillable = [
         'name',
@@ -41,7 +42,8 @@ class Employee extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'contract_type',
         'pix_key',
         'emergency_contact_name',
-        'emergency_contact_phone'
+        'emergency_contact_phone',
+        'branch_id'
     ];
 
     protected $casts = [

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Settings\Http\Controllers\SettingController;
 use App\Modules\Settings\Http\Controllers\SystemUserController;
 
-Route::middleware(['web', 'auth'])->group(function () {
+Route::middleware(['web', 'auth', 'can:access-settings'])->group(function () {
     Route::get('/configuracoes', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/configuracoes/salvar', [SettingController::class, 'store'])->name('settings.store');
     Route::post('/configuracoes/printer/test', [\App\Modules\Settings\Http\Controllers\PrinterController::class, 'test'])->name('settings.printer.test');

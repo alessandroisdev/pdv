@@ -3,10 +3,11 @@
 namespace App\Modules\Sales\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Modules\Core\Traits\HasBranchScope;
 
 class CashRegister extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use \OwenIt\Auditing\Auditable;
+    use \OwenIt\Auditing\Auditable, HasBranchScope;
     protected $fillable = [
         'status',          // OPEN, CLOSED
         'opened_by_id',    // ID do atendente logado via Auth ou PIN numérico
@@ -15,7 +16,8 @@ class CashRegister extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'opened_at',
         'reported_cents',
         'difference_cents',
-        'closed_at'
+        'closed_at',
+        'branch_id'
     ];
 
     protected $casts = [

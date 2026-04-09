@@ -1,9 +1,7 @@
 <?php
 
-use App\Providers\AppServiceProvider;
-use App\Providers\ModuleServiceProvider;
-
 return [
-    AppServiceProvider::class,
-    ModuleServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
+    App\Providers\HorizonServiceProvider::class,
+    App\Providers\ModuleServiceProvider::class,
 ];
