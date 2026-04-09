@@ -20,6 +20,10 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
 // PWA Omnichannel Catalog Routes (Public)
 use App\Http\Controllers\CatalogController;
+// KDS Kitchen Display System (Realtime)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/kds', [\App\Http\Controllers\KdsController::class, 'index'])->name('kds.index');
+});
 Route::prefix('catalogo')->name('catalog.')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('index');
     Route::post('/checkout', [CatalogController::class, 'checkout'])->name('checkout');

@@ -6,7 +6,11 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "build:win": "electron-builder --win --x64",
+    "build:portable": "electron-builder --win portable --x64",
+    "build:linux": "electron-builder --linux deb",
+    "build:all": "electron-builder --win nsis portable --linux deb"
   },
   "author": "Debras Engineering",
   "license": "ISC",
