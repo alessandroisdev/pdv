@@ -42,67 +42,54 @@
         <!-- Livro Razão Recente -->
         <x-ui.card>
             <x-slot:header>Pulsos Financeiros</x-slot:header>
-            <x-ui.table>
-                <x-slot:head>
-                    <th style="padding: 1rem; text-align: left;">Fluxo</th>
-                    <th style="padding: 1rem; text-align: left;">Origem</th>
-                    <th style="padding: 1rem; text-align: right;">Montante</th>
-                </x-slot:head>
-                
-                @forelse($recentTransactions as $trans)
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 1rem;">
-                            @if($trans->type == 'INCOME')
-                                <span style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">ENTRADA</span>
-                            @else
-                                <span style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">SAÍDA</span>
-                            @endif
-                        </td>
-                        <td style="padding: 1rem;">
-                            {{ $trans->payment_method ?? 'MISTO' }}<br>
-                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Recibo: #{{ $trans->source_id }}</span>
-                        </td>
-                        <td style="padding: 1rem; text-align: right; font-weight: 600; color: {{ $trans->type == 'INCOME' ? 'var(--success)' : 'var(--danger)' }};">
-                            R$ {{ number_format($trans->amount_cents / 100, 2, ',', '.') }}
-                        </td>
+            <table class="display" id="dashboard-transactions-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                        <th style="padding: 1rem; text-align: left;">Fluxo</th>
+                        <th style="padding: 1rem; text-align: left;">Origem</th>
+                        <th style="padding: 1rem; text-align: right;">Montante</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="3" style="padding: 2rem; text-align: center; color: var(--text-secondary);">Nenhum pulso financeiro registrado.</td>
-                    </tr>
-                @endforelse
-            </x-ui.table>
+                </thead>
+            </table>
         </x-ui.card>
 
         <!-- Cupons Recentes -->
         <x-ui.card>
             <x-slot:header>Saídas Recentes no PDV</x-slot:header>
-            <x-ui.table>
-                <x-slot:head>
-                    <th style="padding: 1rem; text-align: left;">Cupom ID</th>
-                    <th style="padding: 1rem; text-align: center;">Itens (Mix)</th>
-                    <th style="padding: 1rem; text-align: right;">Total Faturado</th>
-                </x-slot:head>
-                
-                @forelse($recentSales as $sale)
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 1rem; font-weight: 500;">
-                            # {{ str_pad($sale->id, 5, '0', STR_PAD_LEFT) }}<br>
-                            <span style="font-size: 0.75rem; color: var(--text-secondary);">{{ $sale->created_at->format('H:i') }}</span>
-                        </td>
-                        <td style="padding: 1rem; text-align: center;">
-                            {{ $sale->items->sum('quantity') }} pçs
-                        </td>
-                        <td style="padding: 1rem; text-align: right; font-weight: 600; color: var(--text-primary);">
-                            R$ {{ number_format($sale->total_cents / 100, 2, ',', '.') }}
-                        </td>
+            <table class="display" id="dashboard-sales-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.875rem;">
+                        <th style="padding: 1rem; text-align: left;">Cupom ID</th>
+                        <th style="padding: 1rem; text-align: center;">Itens (Mix)</th>
+                        <th style="padding: 1rem; text-align: right;">Total Faturado</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="3" style="padding: 2rem; text-align: center; color: var(--text-secondary);">Os caixas estão vazios neste momento.</td>
-                    </tr>
-                @endforelse
-            </x-ui.table>
+                </thead>
+            </table>
         </x-ui.card>
     </div>
+
+    <!-- Init Dashboard DataTables -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const initDashboardTables = () => {
+                if (typeof window.AppServerTable !== 'function') {
+                    setTimeout(initDashboardTables, 100);
+                    return;
+                }
+
+                new window.AppServerTable('#dashboard-transactions-table', '{{ route('dashboard.transactions.datatable') }}', [
+                    { data: 'fluxo', name: 'type', searchable: false },
+                    { data: 'origem', name: 'payment_method', searchable: false },
+                    { data: 'montante', name: 'amount_cents', searchable: false, className: 'text-right' }
+                ], [[0, 'desc']], { pageLength: 5, lengthChange: false, searching: false, info: false });
+
+                new window.AppServerTable('#dashboard-sales-table', '{{ route('dashboard.sales.datatable') }}', [
+                    { data: 'cupom', name: 'id', searchable: false },
+                    { data: 'itens', searchable: false, orderable: false, className: 'text-center' },
+                    { data: 'faturado', name: 'total_cents', searchable: false, className: 'text-right' }
+                ], [[0, 'desc']], { pageLength: 5, lengthChange: false, searching: false, info: false });
+            };
+            initDashboardTables();
+        });
+    </script>
 </x-layouts.app>
